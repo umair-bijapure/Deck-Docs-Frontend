@@ -144,11 +144,13 @@ export const ProjectsTab: React.FC<{ contractorId: string, employees:any,recieve
   const [projects2, setProjects2] = useState<any>([]);
   const fetchProjectsByIDs = async () => {
     try {
+      if(recieved_projects){
         const response = await axios.get('http://localhost:5000/api/project/recievedProjects/projectbyIds', {
             params: { ids: recieved_projects } // Pass project IDs as query parameters
         });
         setProjects2(response.data)
         return response.data;
+      }
         
     } catch (error) {
         console.error('Error fetching projects by IDs:', error);
@@ -173,7 +175,7 @@ export const ProjectsTab: React.FC<{ contractorId: string, employees:any,recieve
   };
   let contractorid=contractorId;
   const getData = async() => {
-    const response = await axios.get(`http://localhost:5000/api/project/${contractorid}`);
+    const response = await axios.get(`http://localhost:5000/api/project/${contractorId}`);
     const respData = response.data;
     setProjects(respData.concat(projects2)); // Merge projects2 into projects
   }
@@ -200,7 +202,7 @@ export const ProjectsTab: React.FC<{ contractorId: string, employees:any,recieve
   }, [projects2]);
   return (
     <div className="flex-col bg-white justify-center items-start mb-10 w-screen h-screen sm:w-auto rounded-t-2xl overflow-y-scroll">
-      {showForm && (<AddProject contractorId={contractorId} handleAddProject={handleAddProject} onClick={()=>setShowForm(true)} />)}
+      {showForm && (<AddProject contractorId={contractorId} handleAddProject={handleAddProject} onClick={()=>setShowForm(false)} />)}
       {!showForm && (
         <div>
           {data.horizontalTabStatus && (

@@ -12,6 +12,9 @@ const nextConfig = withPWA({
 
 module.exports = {
   ...nextConfig,
+  images: {
+    domains: ['proteams.s3.ap-south-1.amazonaws.com'],
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Add the file-loader rule to handle binary files

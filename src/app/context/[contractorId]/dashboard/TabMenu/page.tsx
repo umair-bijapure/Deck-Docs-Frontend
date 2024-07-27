@@ -94,7 +94,6 @@ const DashboardPage = (props: any): JSX.Element => {
 
 
   
-console.warn(username,profile_data,organisationId,"IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
     return (
         <>
         <div className="z-10 ">

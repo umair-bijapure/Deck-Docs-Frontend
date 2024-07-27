@@ -1,6 +1,7 @@
 'use client';
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { FaEdit, FaTrash, FaImage, FaArrowLeft, FaFolder, FaCalendarDay, FaMoneyBillAlt, FaStar, FaQrcode, FaPen, FaToolbox, FaPlus } from "react-icons/fa";
+import Image from 'next/image';
+import { FaEdit, FaTrash, FaImage, FaArrowLeft, FaFolder, FaCalendarDay, FaMoneyBillAlt, FaStar, FaQrcode, FaPen, FaToolbox, FaPlus, FaBuilding } from "react-icons/fa";
 import { IoGridOutline } from "react-icons/io5";
 import { BsQrCode } from "react-icons/bs";
 import { CommonAttendance } from "../attendance";
@@ -17,8 +18,6 @@ import { CommonAddButton, CommonButtonSolidBlue } from "../common/buttons";
 import { CommonInput } from "../common/inputs";
 import { Collapsible, CollapsibleComponent, CollapsibleItem } from "../common/collapsible";
 import CommonPopup from "../common/popUp";
-
-
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { faEdit,faPerson, faQrcode, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,6 +25,7 @@ import { AiFillQqSquare, AiOutlineQrcode } from "react-icons/ai";
 import SingleDocument from "../common/documentsGird";
 import CameraScan from "../common/cameraScan";
 import UserProfile from "@/app/context/[contractorId]/dashboard/TabMenu/addUser/editUser/page";
+import { CommonSpinner } from "../common/notifications";
 
 
 
@@ -81,19 +81,20 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
   const [doc_name,setDocName]=useState('');
 
   const [doc_image,setDocImage]=useState('');
+  const [showLoader, setShowLoader] = useState(false);
 
   const [position_update,setPosition]=useState('');
   const [is_employee_user_update, setEmployee] = useState(false);
   const [is_supervisor_update, setSupervisor] = useState(false);
   const [is_sub_contractor_update, setSubContractor] = useState(false);
-  const [calendarAvailability, setCalendarAvailability] = useState<any[]>(attendance);
+
   
 
   const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
   const [showTime, setShowTime] = useState(false) ;
   const [showSalary, setShowSalary] = useState(false) ;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [profile, setProfile] = useState({ uploadedImage:'' });
+  const [profile, setProfile] = useState<string | undefined>(profile_picture);
   const [userType, setUserType] = useState<string>('');
   const [fileData, setFileData] = useState<any>('');
   const [showInput, setShowInput] = useState(false);
@@ -101,6 +102,12 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
   const [skills, setSkills] = useState<string[]>(initialSkills);
 
   const [updated, setUpdated] = useState(false);
+
+  
+
+  useEffect(() => {
+    setProfile(profile_picture);
+  }, [profile_picture]);
 
   useEffect(() => {
     if (updated) {
@@ -150,54 +157,64 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
       prevState.map((field, i) => (i === index ? { ...field, value: newValue } : field))
     );
   };
-  const imageUpload = async (imageDataUrl:string) => {
-    const blob = await fetch(imageDataUrl).then(res => res.blob());
-    const file = new File([blob], "image.jpg", { type: "image/jpeg" });
-    const imageLink = await getUploadedImageLink(file);
-    return imageLink;
-  };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageLinking = async (file: File, side: string) => {
+    const imageLink = await getUploadedImageLink(file);
+  
+    setProfile(imageLink)
+  };
+  
+  const handleProfilUpload = async (selectedFile: File | null | undefined) => {
+    setShowLoader(true);
+     if (!selectedFile) return;
+
+      const syntheticEvent = {
+        target: {
+          files: [selectedFile],
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      handleImageUpload(syntheticEvent,'front');
+    
+
+  };
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, side: string) => {
     const selectedFile = e.target?.files?.[0];
+  
     if (selectedFile) {
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        const imageLink = await imageUpload(event.target?.result as string);
-        setProfile({ uploadedImage: imageLink });
-        handleSubmit();
+  
+      reader.onload = (event) => {
+        handleImageLinking(selectedFile, side);
       };
+      handleSubmit()
+  
       reader.readAsDataURL(selectedFile);
     }
   };
   const [averageRating, setAverageRating] = useState<number>(0);
   const handleSubmit = async () => {
+    setShowLoader(true);
     try {
       const updatedData = inputFields.reduce((acc, field) => {
         acc[field.label2] = field.value;
         return acc;
       }, {} as Record<string, any>);
       updatedData.position = position_update;
-      console.warn(averageRating,"JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
       updatedData.rating=userRatings;
       updatedData.skill_set = skills;
-
-      if (userType === "Employee") {
-        setEmployee(true);
-      } else if (userType === "Supervisor") {
-        setSupervisor(true);
-      } else {
-        setSubContractor(true);
+     
+      if (profile) {
+        updatedData.profile_picture = profile;
       }
 
-      if (profile.uploadedImage) {
-        updatedData.profile_picture = profile.uploadedImage;
-      }
+
 
       const response = await axios.put(`http://localhost:5000/api/user/${phone_no}`, updatedData);
-      console.log('Updated successfully:', response.data);
+      setShowLoader(false);
       // window.location.reload();
     } catch (error) {
       console.error('Error updating data:', error);
+      setShowLoader(false);
     }
   };
 
@@ -259,16 +276,16 @@ const remainingFields = inputFields.slice(8);
 
   const ratingsArray = Array.isArray(ratings) ? ratings : ratings ? [ratings] : [];
   const fetchDocumentData = async () => {
+    
     try {
       const response = await axios.get(`http://localhost:5000/api/documents/${phone_no}`);
-  
+      setShowLoader(false);
       // Assuming the response data structure matches the MongoDB document structure
       const { data } = response;
-      const frontData = data.documents.find((doc: any) => doc.document_name === "EmiratesId");
-      const backData = data.documents.find((doc: any) => doc.document_name === "Passport");
   
       // Update state variables with the fetched data
       setFileData(data);
+    
       // setbackFileData(backData);
     } catch (error) {
       console.error('Error fetching document data:', error);
@@ -388,9 +405,7 @@ const [isEditMode, setIsEditMode] = useState(false);
  
 
     {showTime &&               
-    <CommonAttendance profileType={'user'} phone_no={phone_no} attendance={attendance} editedTitle={""} locationValue={""} mainContractorValue={""} subContractorValue={""} clientNameValue={""} onSave={function (): void {
-            throw new Error("Function not implemented.");
-          } } />
+    <CommonAttendance profileType={'user'} phone_no={id} attendance={attendance} editedTitle={""} locationValue={""} mainContractorValue={""} subContractorValue={""} clientNameValue={""}  />
     }
     {/* {!showTime && !isPopupVisible && !isPdfVisible && */}
     {!isPopupVisible &&
@@ -400,6 +415,11 @@ const [isEditMode, setIsEditMode] = useState(false);
             <div className="flex items-center justify-center text-[18px] gap-x-2 m-2 text-gray-700 hover:from-green-500 hover:to-green-400 hover:ring-2 hover:ring-offset-2 hover:ring-gray-200 transition-all ease-out duration-300 cursor-pointer" onClick={onClick}>
             <FaArrowLeft />
             <h1 className="text-lg">Back </h1>
+            {showLoader && (
+      <div className="mx-auto flex flex-col align-middle items-center justify-center">
+        <CommonSpinner />
+      </div>
+    )}
           </div></div>
 
 
@@ -411,31 +431,52 @@ const [isEditMode, setIsEditMode] = useState(false);
 <div className="relative justify-center items-center mb-4 ">
    
       <div className={`flex items-center justify-between relative rounded-2xl w-[160px] mt-2 h-[160px] bsm:w-auto md:w-full bg-[color:var(--mainTitleLightColor)] sm:h-auto ring-[color:var(--mainTitleLightestColor)] ring-offset-2 ring-1  `}>
-      <div className="relative cols-span-1 m-2 rounded-2xl  hover:scale-105 duration-300 ring-[color:var(--mainTitleLightestColor)] ring-offset-2 ring-2 bg-white">
+      <div className="relative cols-span-1 m-2 rounded-2xl ring-[color:var(--mainTitleLightestColor)] ring-offset-2 ring-2 bg-white">
         <label htmlFor="profileImageInput" className=' m-2  '>
           <img
-            className='mb-2 mx-auto aspect-square cursor-pointer'
+            className='mb-2 mx-auto aspect-square cursor-pointer hover:scale-105 duration-300'
             width={200}
             height={100}
-            src={profile_picture || '/default-user-profile.png'}
+            src={profile|| profile_picture || '/default-user-profile.png'}
             alt='Profile Pic'
+            onClick={() => { 
+
+             
+                fileInputRef.current?.click();
+              
+            }}
             // onClick={openModal}
           />
         </label>
         <FaPen
           className="absolute bottom-0 right-0 transform translate-x-1/2 -translate-y-1/2 cursor-pointer [color:var(--lightBackgroundColor)]"
-          onClick={openFileInput}
+          // onClick={openFileInput}
+          onClick={()=>handleImageUpload}
+
           style={{ fontSize: '20px' }}
         />
         <div className="flex items-center justify-center text-[12px] text-[color:var(--mainTitleLightColor)] gap-x-2 font-bold">
-          <input
-            ref={fileInputRef}
-            type="file"
-            id="profileImageInput"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleImageUpload}
-          />
+
+                      <input
+                        type="file"
+                      
+                        style={{ display: 'none' }}
+                       
+                        ref={fileInputRef} 
+                        onChange={(event) => {
+                         
+                          if (!captureMethod) {
+                            const selectedFrontFile = event.target.files?.[0];
+                            if (selectedFrontFile) {
+                             
+                              handleProfilUpload( selectedFrontFile);
+                             
+
+                            }
+                          }
+                        }}
+                        
+                      />
         </div>
       </div>
       <div className="cols-span-2 flex flex-col items-center w-full justify-center text-white">
@@ -539,9 +580,13 @@ const [isEditMode, setIsEditMode] = useState(false);
               
             <div className="col-span-1" >
 
-                 <div  className="ml-2 mr-2 flex items-center justify-center shadow-md rounded-2xl bg-[color:var(--mainTitleLightestColor)] cursor-pointer text-[color:var(--mainTitleLightColor)] text-sm flex gap-x-2 p-1 items-center">
-                          <h1 className=""><FaFolder/></h1>
-                        <h1 className="text-[color:var(--mainTitleColor)] text-lg">Documents</h1>                 
+                 <div  className="flex items-center justify-between ml-5 mr-5 shadow-md rounded-2xl bg-[color:var(--mainTitleLightestColor)] cursor-pointer">
+                          <Image alt={'/'} src={"/documents.png"} className={`z-6 p-2`} width={40}  height={40}/>
+
+        
+                        <h1 className="text-[color:var(--mainTitleColor)] text-lg">Documents</h1>  
+                        <h1 className="text-[color:var(--mainTitleColor)] text-lg"></h1>                 
+
             </div>
             <div className=" flex-col justify-center items-center w-full">
 
@@ -574,15 +619,15 @@ const [isEditMode, setIsEditMode] = useState(false);
                       </div>
                     ))}
 
-</div>
-<div className="flex items-center justify-center">
-<li onClick={openPopupPersonel} className="flex p-2 w-26 md:w-36 h-26 hover:ring-offset-2 hover:ring-2 items-center justify-center text-3xl text-extrabold bg-[color:var(--mainTitleLightestColor)] text-[color:var(--mainTitleLightColor)] rounded-2xl transition-all duration-[250ms] ease-out group-hover:w-full">
-                <span className="relative group-hover:text-white">+</span>
-              </li></div>
-<div className="flex items-center justify-center" onClick={()=>setPdfVisible(true)}>
-    
-  <h1 className="flex items-center justify-center bg-white shadow-sm text-sm m-2 p-1 cursor-pointer gap-x-2"> <IoGridOutline /><h1>View all in one</h1></h1>
-</div>
+                </div>
+                <div className="flex items-center justify-center">
+                <li onClick={openPopupPersonel} className="flex p-2 w-26 md:w-36 h-26 hover:ring-offset-2 hover:ring-2 items-center justify-center text-3xl text-extrabold bg-[color:var(--mainTitleLightestColor)] text-[color:var(--mainTitleLightColor)] rounded-2xl transition-all duration-[250ms] ease-out group-hover:w-full">
+                                <span className="relative group-hover:text-white">+</span>
+                              </li></div>
+                <div className="flex items-center justify-center" onClick={()=>setPdfVisible(true)}>
+                    
+                  <h1 className="flex items-center justify-center bg-white shadow-sm text-sm m-2 p-1 cursor-pointer gap-x-2"> <IoGridOutline /><h1>View all in one</h1></h1>
+                </div>
 
               
               </div>
@@ -590,9 +635,16 @@ const [isEditMode, setIsEditMode] = useState(false);
               </div>
 
               <div className=" flex-col justify-center items-center w-full">
+              <div  className="flex items-center justify-between ml-5 mr-5 shadow-md rounded-2xl bg-[color:var(--mainTitleLightestColor)] cursor-pointer">
+                          <Image alt={'/'} src={"/certificate_batch.png"} className={`z-6 p-2`} width={40}  height={40}/>
 
+        
+                        <h1 className="text-[color:var(--mainTitleColor)] text-lg opacity-90">Certificates</h1> 
+                        <h1 className="text-[color:var(--mainTitleColor)] text-lg"></h1>                 
+
+            </div>
               <div>
-  {/* First six elements */}
+              {/* First six elements */}
                     <div className="grid grid-cols-2 gap-2 text-[color:var(mainTitleLightColor)] opacity-80">
                   {[
                   { name: "Certificate-1", image: "/certificate.png" },
@@ -613,7 +665,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                   <img
                   src={doc.image}
                   alt={doc.name}
-                  className="absolute inset-0 w-full h-full object-cover rounded-2xl shadow-md"
+                  className="absolute inset-0 w-full h-full object-cover rounded-2xl opacity-80"
                   />
                   </div>
                   <h1 className="mt-2">{doc.name}</h1>
@@ -626,54 +678,7 @@ const [isEditMode, setIsEditMode] = useState(false);
 
 </div>
           
-              {/* <div  className=" flex-col justify-center sm:space-y-3 items-center w-full">
-                  
-                 
-
-                 <div className="flex-col z-10 items-center justify-center w-full sm:h-auto gap-x-4 pl-4 pr-4 p-1">
-                      <div className="truncate p-2 bg-[color:var(--mainTitleLightestColor)] rounded-2xl ">
-                        <h1 className="text-[10px]  text-[color:var(--mainTitleLightColor)]">{label_2}</h1>      
-                        <select 
-                          onChange={(event) => setUserType(event.target.value)}
-                          id="User Type" 
-                          className="p-2 bg-[color:var(--mainTitleLightestColor)] cursor-pointer text-[color:var(--mainTitleColor)] text-md   focus:ring-blue-500 focus:border-blue-500 block w-full  dark:bg-[color:var(--lightBackgroundColor)]  dark:border-[color:var(--lightBackgroundColor)] dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                  <option  value="Not selected">Select a User Type</option>
-                                  <option selected={is_employee_user} value="Employee">Employee/ Labour</option>
-                                  
-                                  <option selected={is_supervisor} value="Supervisor">Supervisor</option>
-                                  
-                                  <option selected={is_sub_contractor} value="Sub Contractor">Sub Contractor</option>
-                        </select>
-                      </div>
-                  </div> 
-                
-                  <div className="flex-col z-10 items-center justify-center w-full sm:h-auto gap-x-4  pl-4 pr-4 p-1">
-                      <div className="truncate p-2 bg-[color:var(--mainTitleLightestColor)] rounded-2xl ">
-                        <h1 className="text-[10px] text-[color:var(--mainTitleLightColor)]">Position</h1>
-
-                        <select 
-                          onChange={(event) => setPosition(event.target.value)}
-                          id="User Type" 
-                          className="p-2 bg-[color:var(--mainTitleLightestColor)] cursor-pointer text-[color:var(--mainTitleColor)] text-md   focus:ring-blue-500 focus:border-blue-500 block w-full  dark:bg-[color:var(--lightBackgroundColor)]  dark:border-[color:var(--lightBackgroundColor)] dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        >
-                          <option value="Not selected">Select Position</option>
-                          
-                          {tableData.map((row) => (
-                            <option key={row.No} value={row['Trade-InDirect']}>{row['Trade-InDirect']}</option>
-                          ))}
-                        </select>
-                      </div>
-                  </div>           
-              </div>
-
-                <div className=" p-2">
-                    <CommonSectionTitle title="TEAM 1" titleColor={""} fontSize={""}/>
-                    <div className="">
-                    <div className="overflow-y-scroll h-[444px] no-scrollbar border-2 border-[color:var(--mainTitleLightestColor)] rounded-xl ">
-                    <CommonUserCard  circleColor={""} employeeImage={'/engineer 1.png'} employeeName={"Zaid Shaikh"} userDetailsPath={""} position="Structual Engineer"/>
-                    </div>
-                    </div> 
-                </div> */}
+            
 
             </div>
     </div>
@@ -695,44 +700,17 @@ const [isEditMode, setIsEditMode] = useState(false);
   </div>
       
             <div className="col-span-1"  >
-              <div className="hidden sm:grid grid-cols-6">
-                {/* <CommonSectionTitle title="DOCUMENTS" titleColor={""} fontSize={""}/> */}
-                  
-                <div className="col-span-5 flex-col z-10 items-center justify-center w-full sm:h-auto gap-x-4 pl-4  p-1" onClick={openPopupPersonel}>
-                    <div className="truncate sm:p-4 bg-[color:var(--mainTitleLightestColor)] rounded-2xl">       
-                        <div  className="shadow-[color:var(--mainTitleLightestColor)] cursor-pointer text-[color:var(--mainTitleLightColor)] text-sm flex gap-x-2 p-1 items-center">
-                          <h1 className=""><FaFolder/></h1>
-                        <h1 className="text-[color:var(--mainTitleColor)] text-lg">All Documents</h1> 
-                       
-                          </div>
-                    </div>
-                </div>   
-          
-              </div>
-              <div className="mt-3 hidden sm:block">
-                  {/* <CommonSectionTitle title="CERTIFICATES" titleColor={""} fontSize={""}/> */}
-                  <div className="flex-col z-10 items-center justify-center w-full sm:h-auto gap-x-4 pl-4 pr-4 p-1" onClick={openPopupCertificates}>
-                  <div className="truncate sm:p-4 bg-[color:var(--mainTitleLightestColor)] rounded-2xl">              
-                          <div  className="shadow-[color:var(--mainTitleLightestColor)] cursor-pointer text-[color:var(--mainTitleLightColor)] text-sm flex gap-x-2 p-1 items-center">
-                            <h1 className=""><FaFolder/></h1>
-                          <h1 className="text-[color:var(--mainTitleColor)] text-lg">All Certificates</h1> 
-                            </div>
-                      </div>
-                  </div>
-              </div>
+            <div  className="flex items-center justify-between ml-5 mr-5 shadow-md rounded-2xl bg-[color:var(--mainTitleLightestColor)] cursor-pointer">
+                
+                        <h1 className="h-[40px] w-[40px] p-3 text-[color:var(--primaryColor)]"><FaBuilding/></h1>
+        
+                        <h1 className="text-[color:var(--mainTitleColor)] text-lg opacity-90">Projects</h1> 
+                        <h1 className="text-[color:var(--mainTitleColor)] text-lg"></h1>                 
+
+            </div>
           
         
-             {/* <div className="mt-3">
-              
-              <div className="flex-col z-10 items-center justify-center w-full sm:h-auto gap-x-4 pl-4 pr-4 p-1" onClick={() => setShowSalary(true)}>
-                  <div className="truncate sm:p-4 bg-[color:var(--mainTitleLightestColor)] rounded-2xl">                    
-                      <div  className="shadow-[color:var(--mainTitleLightestColor)] cursor-pointer text-[color:var(--mainTitleLightColor)] text-sm flex gap-x-2 p-1 items-center">
-                        <h1 className=""><FaMoneyBillAlt/></h1>
-                      <h1 className="text-[color:var(--mainTitleColor)] text-lg">Salary</h1> 
-                        </div>
-                  </div>
-              </div>           
-          </div>  */}
+
           <div className="mt-3">
               <div className="sm:hidden">
               <CommonSectionTitle  title="ATTENDANCE" titleColor={""} fontSize={""}/></div>

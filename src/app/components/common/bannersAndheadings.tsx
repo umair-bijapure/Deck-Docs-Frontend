@@ -220,7 +220,12 @@ export interface CommonProfileProps {
   user_status?:string;
   team:string[];
   skills?:string[];
-  attendance:[],
+  attendance: {
+    [key: string]: {
+      absences: number[];
+      leaves: number[];
+    };
+  };
   qualification?:string;  
   gender?:string;
   occupation?:string,
@@ -281,7 +286,6 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
   const [is_employee_user_update, setEmployee] = useState(false);
   const [is_supervisor_update, setSupervisor] = useState(false);
   const [is_sub_contractor_update, setSubContractor] = useState(false);
-  const [calendarAvailability, setCalendarAvailability] = useState<any[]>(attendance);
   
 
   const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
@@ -368,7 +372,7 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
         return acc;
       }, {} as Record<string, any>);
       updatedData.position = position_update;
-      console.warn(averageRating,"JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+    
       updatedData.rating=userRatings;
 
       if (userType === "Employee") {
@@ -467,7 +471,7 @@ const remainingFields = inputFields.slice(8);
   useEffect(() => {
     fetchDocumentData();
   }, []);
-console.warn(attendance,fileData,"zxxxxxxxxxxxxxxxxxxxxxzzzzzzzzzzzzzzzMNNNNNNNNNNNNNNNNNCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+
 const [error, setError] = useState<string | null>(null);
 
 const handleScan = async (data: any) => {

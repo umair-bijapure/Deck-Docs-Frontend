@@ -482,7 +482,7 @@ const CertificateUploader: React.FC<CommonCertificateProps> = ({ contractorId, p
   const resetDeletedRowIndex = () => {
     setDeletedRowIndex(null);
   };
-  console.warn(fileData,"dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffvdsbdsvhdsvshdvhdhsvhsdhvds")
+ 
   
   return (
     <div className="app-container p-4 w-auto mx-auto bg-[var(--mainTitleLightestColor)] min-h-screen">

@@ -60,19 +60,19 @@ const CameraScan: React.FC<CameraScanProps> = () => {
           setExtractedText(extractedText[0]+extractedText[1]);
           setCapturedImage(URL.createObjectURL(blob));
 
-          console.warn(wholeImage,"gggggggggggggggggggggggggggggggggggggggggg")
+         
           // Extract dates
           const dates = extractDates(extractedText[0], 'DocumentName');
-          console.log('Dates:', dates);
+     
           
           // Extract names
           const names = extractNames(extractedText[0], 'DocumentName');
-          console.log('Names:', names);
+          
           const fullName =recognizeFullName(extractedText[0]+extractedText[1]+extractedText[2])
-          console.warn(fullName,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkKKKKKKKKKKKKKKkkkkkkkkkk")
+        
           // Extract ID numbers
           const idNumbers = extractIDNumber(extractedText[1], 'DocumentName');
-          console.log('ID Numbers:', idNumbers);
+         
           
           closeCamera(); // Turn off the camera after capturing the image
         }
@@ -114,7 +114,7 @@ const CameraScan: React.FC<CameraScanProps> = () => {
       const bottomText = await extractTextFromImageData(bottomImageData);
 
       // Combine extracted text from all four images
-      console.warn(leftText,rightText,topText,bottomText,"ppppppppppppppppppppppppppppppppppppppppppppppppppp")
+  
       const combinedText = [leftText,rightText, topText, bottomText].join('\n');
       const combinedText2 = ['plqae'+leftText,'ghvvgh' ,'yeco'+rightText, 'sdvfv','ybbdllg'+topText, 'iwoqy','ggttaax'+bottomText].join('\n');
 
@@ -208,7 +208,6 @@ function extractNames(extractedText: string, documentName: string): ExtractionRe
     secondLongestSequence: "",
   };
 
-  console.warn(extractedText, "in names kkkkkkkiiiiiiiiiiiiiiiiiiiiiii");
 
   const employerRegex = /Employer\s*:\s*(.*?)\n/g;
   const issuingPlaceRegex = /Issuing Place: ([A-Za-z\s]+)/;
@@ -471,7 +470,7 @@ function extractDates(combinedText: string, documentName: string) {
 
 
 function extractIDNumber(frontExtractedText: string, documentName?: string) {
-  console.warn(frontExtractedText, "iiiiiiiiiiiiiiiiiiiiiii");
+
   const frontTextWithoutSpaces = frontExtractedText.replace(/\s/g, "");
 
   const alphanumericRegex = /[-\s.\w]+/g;

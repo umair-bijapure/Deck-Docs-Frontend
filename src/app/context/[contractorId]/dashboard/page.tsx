@@ -17,9 +17,7 @@ import axios from 'axios';
   const username = loggedInUserData ? loggedInUserData['identifier'] : '';
   const organisationId = loggedInUserData && loggedInUserData['profile'] ? loggedInUserData['profile'].organisation_id : null;
 
-  useEffect(() => {
-    console.warn(organisationId, "organisationID");
-  }, [organisationId]);
+
 
 
 
@@ -62,10 +60,10 @@ const router = useRouter();
 
 useEffect(()=>{
   if(!isUserLoggedIn()){
-    router.replace("/");
+    router.push("/");
   }
   if(getLoggedInRole() != "contractor_company"){
-    router.replace("/");
+    router.push("/");
   }
 }, [router])
 

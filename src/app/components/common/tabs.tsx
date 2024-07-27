@@ -2,7 +2,7 @@
   import { useMyContext } from '@/app/Context';
   import React, { useEffect, useState } from 'react';
   import {  CommonSectionTitle } from './bannersAndheadings';
-  import { faBell, faFile, faHandshake, faPeopleGroup, faPersonDress } from '@fortawesome/free-solid-svg-icons';
+  import { faBell, faCalendarCheck, faFile, faHandshake, faPeopleGroup, faPersonDress } from '@fortawesome/free-solid-svg-icons';
   import { FaBell, FaBellSlash, FaBuilding, FaFacebookMessenger, FaFile, FaFolder, FaPersonBooth, FaRegBell, FaUserCircle } from 'react-icons/fa';
   import { AiFillBank, AiFillBell, AiFillMessage, AiOutlineBell, AiOutlineLogout } from 'react-icons/ai';
 import axios from 'axios';
@@ -31,6 +31,8 @@ import ProjectDocuments from '@/app/context/[contractorId]/dashboard/TabMenu/pro
 import { getLoggedInUserData, logOutUser, useUserPermissions } from '../utils/utils';
 import { CommonProfile } from '../profiles/employeeProfile';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import CommonAttendance from '../CommonAttendance';
+import { fetchOrganisationUsers } from '../utils/fetches';
 
 
 
@@ -157,17 +159,21 @@ export enum UserTypes {
 
     const [isNotificationsExpanded, setIsNotificationsExpanded] = useState(false);
     const [selectedProfileData, setSelectedProfileData] = useState<Project | null>(null);
-    const getData = async () => {
-      //here we are fetching both emplyees having thier contractor with username as Id
-      const response = await axios.get(`http://localhost:5000/api/user/${username}`);
-      const respData = response.data;
-      
-      setEmployees(respData)
+    const fetchUsers = async () => {
+      try {
+        const subContractors = await fetchOrganisationUsers();
+       
+        setEmployees(subContractors.data);
+        return subContractors;
+      } catch (error) {
+        console.error("Error fetching sub contractors:", error);
+        throw error;
+      }
     };
   
     useEffect(()=>{
   
-      getData();
+      fetchUsers();
     }, [])
     const handleTabClick = (index: number,tabName:string) => {
       const newData = {
@@ -187,7 +193,7 @@ export enum UserTypes {
       const response = await axios.get(`http://localhost:5000/api/user/${id}`);
       const respData = response.data;
       setEmployees((prevData:any)=>[...prevData,...respData])
-      getData(); // Fetch the updated employee list
+      fetchUsers(); // Fetch the updated employee list
     };
     const [notifications, setNotifications] = useState([]);
 
@@ -242,7 +248,7 @@ const handleInputChange = (newValue: string) => {
 // Example usage to fetch sub_contractors array for a specific contractor
 const fetchSubContractors = async (username: string) => {
   try {
-    const subContractors = fetchContractorData(username, 'sub_contractors');
+    const subContractors = fetchContractorData(username, 'connection_organisations');
     console.log("Sub Contractors:", subContractors);
     return subContractors;
   } catch (error) {
@@ -273,13 +279,27 @@ const [userPermissions, updateUserPermissions] = useUserPermissions();
 const availableTabs: Tab[] = [
   { 
     name: 'Employees', 
-    permission: 'ViewEmployees', 
-    content: <EmployeeTab contractorId={username}  organisationId={organisationId} employees={employees}  />, 
+    permission: 'ListAllEmployees', 
+    content: <EmployeeTab contractorId={username} onEmployeeAdded={(id) => handleEmployeeAdded(id)}  organisationId={organisationId} employees={employees}  />, 
     icon: <FontAwesomeIcon icon={faPeopleGroup}/>
   },
   { 
+    name: 'Attendance', 
+    permission: 'ViewAttendance', 
+    content: <CommonAttendance  employees={employees}  />, 
+    icon: <FontAwesomeIcon icon={faCalendarCheck}/>
+  },
+  // { 
+  //   name: 'Attendance', 
+  //   permission: 'ViewMyAttendance', 
+  //   content:     <CommonAttendance profileType={'user'} phone_no={phone_no} attendance={profile_data.attendance} editedTitle={""} locationValue={""} mainContractorValue={""} subContractorValue={""} clientNameValue={""} onSave={function (): void {
+  //     throw new Error("Function not implemented.");
+  //   } } />, 
+  //   icon: <FontAwesomeIcon icon={faCalendarCheck}/>
+  // },
+  { 
     name: 'Projects', 
-    permission: 'ViewProjects', 
+    permission: 'ListAllProjects', 
     content: <ProjectsTab contractorId={username} recieved_projects={profile_data?.recieved_projects} employees={employees} />, 
     icon: <FaBuilding/> 
   },
@@ -297,19 +317,19 @@ const availableTabs: Tab[] = [
   // },
   { 
     name: 'Clients', 
-    permission: 'ViewClients', 
+    permission: 'ListAllClients', 
     content: <ClientTab contractorId={username} />, 
     icon:<FontAwesomeIcon icon={faHandshake}/>
   },
   { 
     name: 'My Documents', 
-    permission: 'ViewDocuments', 
+    permission: 'ViewMyDocuments', 
     content: <ProjectDocuments project_name={profile_data.pro_team_id} contractorId={username} recieved_folders={profile_data?.recieved_folders} />, 
     icon:  <FaFolder/>
   },
   { 
     name: 'My Profile', 
-    permission: 'ViewProfile', 
+    permission: 'UpdateSelf', 
     content: (
       <CommonProfile
         profile_picture={profile_data.profile_picture}
@@ -346,7 +366,6 @@ const userPermissionsSet = new Set(userPermissions);
 
 for (let i = 0; i < userPermissions.length; i++) {
   const permission = userPermissions[i];
-  console.warn(`Checking permission: ${permission}`);
   if (["ViewAll"].includes(permission)) {
     tabs.push(...availableTabs);
     break;
@@ -407,8 +426,6 @@ return (
                       className="inline-block rounded px-2 pb-2 pt-2.5 font-bold leading-normal bg-[color:var(--mainTitleLightestColor)] text-black hover:bg-blue-100 hover:text-[color:var(--mainTitleColor)] transition "
                       data-twe-ripple-init
                       data-twe-ripple-color="light">
-                     
-                    
                       <div className="flex items-center gap-2">
                         <div className=' text-[30px] text-[color:var(--primaryColor)]'><FaBell/></div>
                         <div className="text-left text-black">Notifications</div>
@@ -424,23 +441,23 @@ return (
 
           </div> 
           <div className="tab-button-container flex flex-col w-60 h-full bg-white p-4 shadow-lg">
-    {tabs.map((tab, index) => (
-      <button
-        key={index}
-        className={`w-full h-16 flex items-center justify-start px-4 ${
-          index === activeTab
-            ? 'bg-[color:var(--primaryColor)]  text-white shadow-md font-bold'
-            : 'bg-[color:var(--mainTitleLightestColor)] text-black hover:bg-blue-100 hover:text-black'
-        } transition-all duration-300 ease-in-out rounded-lg mb-2`}
-        onClick={() => handleTabClick(index, tab.name)}
-      >
-        <div className="flex items-center gap-2">
-          <div>{tab.icon}</div>
-          <div className="text-left">{tab.name}</div>
-        </div>
-      </button>
-    ))}
-  </div>
+            {tabs.map((tab, index) => (
+              <button
+                key={index}
+                className={`w-full h-16 flex items-center justify-start px-4 ${
+                  index === activeTab
+                    ? 'bg-[color:var(--primaryColor)] text-white text-lg shadow-md font-bold'
+                    : 'bg-[color:var(--mainTitleLightestColor)] text-[color:var(--mainTitleLightColor)] hover:bg-blue-100 hover:text-black'
+                } transition-all duration-300 ease-in-out rounded-lg mb-2`}
+                onClick={() => handleTabClick(index, tab.name)}
+              >
+                <div className="flex items-center gap-2">
+                  <div>{tab.icon}</div>
+                  <div className="text-left">{tab.name}</div>
+                </div>
+              </button>
+            ))}
+          </div>
 
         </div>
         <div className="col-span-5 bg-white overflow-y-scroll no-scrollbar rounded-lg">{tabs[activeTab]?.content}</div>

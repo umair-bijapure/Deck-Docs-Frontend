@@ -14,7 +14,7 @@ import { Project, SubContractor } from "../common/projectGrid";
 import { Reportstab } from "@/app/context/[contractorId]/dashboard/TabMenu/reportsTab";
 import ProjectDocuments from "@/app/context/[contractorId]/dashboard/TabMenu/projects/projectDocuments/page";
 import ProjectProgress from "../project_progress";
-import { fetchContractorData } from "../utils/fetches";
+import { fetchContractorData, fetchOrganisationUsers } from "../utils/fetches";
 import Select, { ActionMeta } from 'react-select';
 import FileUploadForm from "@/app/context/[contractorId]/dashboard/TabMenu/projects/projectDocuments/FileUploadForm";
 import CertificateUpload from "../common/certificatesUpload";
@@ -46,7 +46,7 @@ interface ContractorDropdownProps {
   addContractorToProject: (projectId: string, contractorId: string) => void;
   project_name: string;
 }
-interface User {
+export interface User {
   _id: string;
   first_name: string;
   name:string;
@@ -173,7 +173,6 @@ interface CommonProfileProps {
     const [team2, setTeam2] = useState<string[]>(team);
     const [addedEmployees, setAddedEmployees] = useState<string[]>([]);
     const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
-    console.warn(project_status,"0000000000000000000000000000...........................0000000000000000000000000")
     const [projectStatus, setProjectStatus] = useState<boolean>(project_status||true);
     useEffect(() => {
       if (project_status !== undefined) {
@@ -216,7 +215,6 @@ interface CommonProfileProps {
 
 
     const addTeamMember = async (employee:string, employeeDetails: { _id?: string; first_name?: string; last_name?: string; profile_picture?: string; position?: string; current_projects: any[]; }) => {
-      console.warn(employee, employeeDetails, "{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{pppppppppppppppppppppppppppppppppppppppppxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       // setAddedEmployees((prevEmployees) => [...prevEmployees, employee]);
     
       try {
@@ -228,7 +226,6 @@ interface CommonProfileProps {
     
         // Push the new project_name to the current_projects array
         employeeDetails.current_projects.push(project_name);
-        console.log(employeeDetails,"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
         // Make a PUT request to update the user data
         const updateResponse = await axios.put(`http://localhost:5000/api/user/${employeeDetails._id}`, employeeDetails);
     
@@ -277,7 +274,6 @@ interface CommonProfileProps {
     const removeTeamMember = async (employeeId: string, employeeDetails: any) => {
       
       setAddedEmployees((prevEmployees) => prevEmployees.filter((employee) => employee !== employeeId));
-      console.warn(addedEmployees,"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
     
       try {
         // Ensure current_projects is initialized as an array
@@ -318,14 +314,12 @@ interface CommonProfileProps {
     
     const handleSubmit = async () => {
       try {
-        console.log(team2,"1111111111111111111111111111111111111111111111111111111111111")
         const updatedData = inputFields.reduce((acc, field) => {
           acc[field.label2] = field.value;
           return acc;
         }, { team: team2 } as Record<string, any>);
     
         updatedData.position = position_update;
-        console.warn(team,team2,addedEmployees,projectStatus,"HHHHHHHHHHHHHHHHHHHHHH2222222222222222222222222222222222222222222222222222222222")
         // Append new team members to the existing ones
         updatedData.team = [...team2, ...addedEmployees];
         updatedData.project_status=projectStatus;
@@ -346,7 +340,7 @@ interface CommonProfileProps {
                 
             
         // Update the project on the server
-        const response = await axios.put(`http://localhost:5000/api/project/${project_name}`, updatedData);
+        const response = await axios.put(`http://localhost:5000/api/project/${project_id}`, updatedData);
     
         console.log('Updated successfully:', response.data);
       } catch (error) {
@@ -391,7 +385,7 @@ const [rolesState, setRoles] = useState({});
       };
     
       // Send updated data to the backend
-      axios.put(`http://localhost:5000/api/project/${project_name}`, updatedData)
+      axios.put(`http://localhost:5000/api/project/${project_id}`, updatedData)
         .then(response => {
           console.log("Roles updated successfully:", response.data);
         })
@@ -420,7 +414,7 @@ const [rolesState, setRoles] = useState({});
     const [subcontractors, setSubcontractors] = useState<any>([]);
     const fetchSubContractors = async (contractorId: string) => {
       try {
-        const subContractors = await fetchContractorData(contractorId, 'connection_oranisations');
+        const subContractors = await fetchContractorData(contractorId, 'connection_organisations');
         console.log("Sub Contractors:", subContractors);
         setSubcontractors(subContractors);
         return subContractors;
@@ -435,25 +429,27 @@ const [rolesState, setRoles] = useState({});
         fetchSubContractors(contractorId);
       }
     }, [contractorId]);
-console.warn(contractorId,"GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
 const [allusers, setUsers] = useState<User[]>([]); // State to store users
 const [contractorCompanies, setContractorCompanies] = useState([]);
 const [title, setTitle] = useState('');
 const [description, setDescription] = useState('');
 const [selectedContractor, setSelectedContractor] = useState<{ value: string; label: string; } | null>(null);
 
-    // Fetch users from the backend
+
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/user');
-        setUsers(response.data); // Set the fetched users in state
+        const users = await fetchOrganisationUsers();
+        console.log("Sub Contractors:", users );
+        setUsers(users.data);
+        return users ;
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching sub contractors:", error);
+        throw error;
       }
     };
     const fetchContractorCompanies = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/contractor_company');
+        const response = await axios.get('http://localhost:5000/api/organisation');
         const contractorCompanies = response.data;
         setContractorCompanies(contractorCompanies); // Set the fetched contractor companies in state
       } catch (error) {
@@ -472,7 +468,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
         const updatedProjectSubContractors = [...projectSubContractors, contractorId];
     
         // Update project data on the server
-        await axios.put(`http://localhost:5000/api/project/${project_name}`, { project_sub_contractors: updatedProjectSubContractors });
+        await axios.put(`http://localhost:5000/api/project/${project_id}`, { project_sub_contractors: updatedProjectSubContractors });
         
         console.log('Contractor added to project successfully');
       } catch (error) {
@@ -514,7 +510,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
                 const updatedProjectSubContractors = [...projectSubContractors, selectedContractor.value];
                 
                 // Update project data on the server with title, description, and contractorId
-                await axios.put(`http://localhost:5000/api/project/${project_name}`, {
+                await axios.put(`http://localhost:5000/api/project/${project_id}`, {
                     title: title,
                     description: description,
                     contractorId: (selectedContractor as { value: string }).value,
@@ -535,7 +531,6 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
       setExpandedContractorId((prevId) => (prevId === contractorId ? '' : contractorId));
     };
   
-  console.warn(project_sub_contractors,"LPMOdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddKNIJBHUYGV")
     return (
 
       <>
@@ -548,22 +543,20 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
       } */}
 
      
-      {showNewPage==='attendance' &&               
-        <CommonAttendance profileType={'project'} team={team} editedTitle={""} employees={employees} locationValue={""} mainContractorValue={""} subContractorValue={""} clientNameValue={""} onSave={function (): void {
-              throw new Error("Function not implemented.");
-            } } />
-      }
+      {/* {showNewPage==='attendance' &&               
+        <CommonAttendance profileType={'project'} team={team} editedTitle={""} attendance={attendance} locationValue={""} mainContractorValue={""} subContractorValue={""} clientNameValue={""} />
+      } */}
       
         
       {showNewPage==='documents' &&     
            
-        <ProjectDocuments project_name={project_name} contractorId={contractorId} />
+        <ProjectDocuments project_name={project_id} contractorId={contractorId} />
       }
     
        {showNewPage==='certificates' &&     
            
          
-          <CertificateUploader contractorId={contractorId}  project_name={project_name} />
+          <CertificateUploader contractorId={contractorId}  project_name={project_id} />
          }
       {showNewPage==='reports' &&               
         <Reportstab contractorId={contractorId}  project_id={project_id}/>
@@ -619,20 +612,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
   
                         </div>
                       </div>
-                      {/* <div className="flex items-center justify-center text-[12px] text-[color:var(--mainTitleLightColor)] gap-x-2 font-bold "> 
-                          <h1><FaImage/></h1>
-                          <h1 onClick={() => {  openFileInput()}} style={{ cursor: 'pointer' }}>
-                            Change Profile Image
-                          </h1>
-                              <input
-                                ref={fileInputRef}
-                                type="file"
-                                id="profileImageInput"
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={handleImageUpload}
-                              />
-                        </div> */}
+
                   </div>
                   
                     <div className=" flex-col justify-center items-center w-full">

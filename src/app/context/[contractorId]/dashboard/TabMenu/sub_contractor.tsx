@@ -16,6 +16,7 @@ import axios from 'axios';
 import CreateOrganisationForm from './createOrgnisation/page';
 import { faBuilding, faHandshake, faPersonBooth } from '@fortawesome/free-solid-svg-icons';
 import { fetchChildOranisations } from '@/app/components/utils/fetches';
+import CreateOrganisationUser from './createOrgnisation/createOrganisationUser/page';
 export interface ContractorsTabProps {
   contractorId: string;
 
@@ -24,6 +25,8 @@ export interface ContractorsTabProps {
 const SubContractor: React.FC<ContractorsTabProps> = ({ contractorId,  onEmployeeAdded }) => {
 
   const [showForm,setShowForm]=useState(false);
+  const [showOrganisationUserForm,setShowOrganisationUserForm]=useState(false);
+
   const [sub_contractors, setSubcontractors] = useState<any>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
 
@@ -50,7 +53,6 @@ const SubContractor: React.FC<ContractorsTabProps> = ({ contractorId,  onEmploye
   const handleSearch = (results: any[]) => {
     setFilteredEmployees(results);
   };
-console.warn(sub_contractors,"SSSSSSSSSSSsssssssssssssssssssssssssssssssssssssSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsssssssssssssssssssSSSSSSSssss")
 
   return (
     <div className='flex-col w-screen sm:w-full h-screen bg-white rounded-t-2xl'> 
@@ -59,7 +61,9 @@ console.warn(sub_contractors,"SSSSSSSSSSSsssssssssssssssssssssssssssssssssssssSS
       // <RegisterContractor profileType='contractor_company' contractorId={contractorId} onEmployeeAdded={(id: string) => onEmployeeAdded(id)} onClick={() => setShowForm(false)} />
       <CreateOrganisationForm parentOrganisationId={contractorId} />
       )}
-     {!showForm &&
+            {showOrganisationUserForm && (<CreateOrganisationUser profileType='employee' contractorId={contractorId} onEmployeeAdded={fetchSubContractors} onClick={() => setShowOrganisationUserForm(false)} />)}
+
+     {!showForm && !showOrganisationUserForm &&
      <div>
              
           <div>         
@@ -70,7 +74,18 @@ console.warn(sub_contractors,"SSSSSSSSSSSsssssssssssssssssssssssssssssssssssssSS
                 <CommonAddButton
                   icon={faPersonBooth}
                   color="color:var(--mainTitleColor)" // Add your desired color here
-                  title="Add"
+                  title="Add Organisation/C"
+                  width={20}
+                  height={20}
+                  className='shadow-md cursor-pointer hover:scale-105 duration-300'
+                />
+
+              </div>
+              <div className='p-2' onClick={() => setShowOrganisationUserForm(true)}>
+                <CommonAddButton
+                  icon={faPersonBooth}
+                  color="color:var(--mainTitleColor)" // Add your desired color here
+                  title="Add Organisation User"
                   width={20}
                   height={20}
                   className='shadow-md cursor-pointer hover:scale-105 duration-300'

@@ -62,7 +62,6 @@ export const Reportstab: React.FC<Props> = ({contractorId,project_name, project_
   });
 };
   
-console.warn(project_name,"NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
 
   return (
     <div className='bg-white w-screen h-screen sm:w-auto rounded-t-2xl'>

@@ -173,11 +173,14 @@ export async function standardFetch<T>(input: StandardFetchInput): Promise<T> {
 
   const headers: any = {
     method: data.method,
-    body: data.body,
     headers: {
       "Content-Type": data.contentType,
     },
   };
+
+  if (data.body) {
+    headers.body = data.body;
+  }
 
   const token = localStorage.getItem("token");
   if (token) {
@@ -190,23 +193,19 @@ export async function standardFetch<T>(input: StandardFetchInput): Promise<T> {
 
   try {
     const response = await fetch(data.url, headers);
-    console.warn("Fetch response:", response);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errorResponse = await response.json();
+      throw { response: { status: response.status, data: errorResponse } };
     }
 
     const jsonResponse = await response.json();
-    console.warn("JSON response:", jsonResponse);
-
     return jsonResponse as T;
   } catch (error: any) {
     console.error("Fetch error:", error.message);
     throw error;
   }
 }
-
-
 
 
 
@@ -244,6 +243,15 @@ export async function standardFetch<T>(input: StandardFetchInput): Promise<T> {
 //   }
 // }
 
+export const createOrUpdateNotification = async (notificationData: any) => {
+  try {
+      const response = await axios.post('http://localhost:5000/api/notifications', notificationData);
+      return response.data;
+  } catch (error: any) {
+      console.error("Error creating or updating notification:", error);
+      throw new Error("An error occurred while creating or updating the notification.");
+  }
+};
 
 export async function fetchCreateProject( body:any, controller = null) {
   console.log("llllllllllllllllllllllllllllllllllllllllllllllllllllll")

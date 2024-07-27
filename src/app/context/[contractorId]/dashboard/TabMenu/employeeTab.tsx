@@ -65,11 +65,11 @@ interface EmployeeTabProps {
   organisationId: string;
   employees: any[];
   contractorId:string
-  
+  onEmployeeAdded?: (id: string) => void;
 }
 
-const EmployeeTab: React.FC<EmployeeTabProps> = ({ organisationId, contractorId}) => {
-  console.log(contractorId,organisationId,"888888888888yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy44444444444444444444444444")
+const EmployeeTab: React.FC<EmployeeTabProps> = ({ organisationId, contractorId,onEmployeeAdded}) => {
+ 
   const { data, setData } = useMyContext();
   const [showForm, setShowForm] = useState(false);
   const [showSearch, setShowSearch] = useState(true);
@@ -79,7 +79,7 @@ const EmployeeTab: React.FC<EmployeeTabProps> = ({ organisationId, contractorId}
   const fetchUsers = async (contractorId: string) => {
     try {
       const subContractors = await fetchOrganisationUsers();
-      console.log("Sub Contractors:", subContractors);
+      console.warn("Sub Contractors:", subContractors);
       setEmployees(subContractors.data);
       return subContractors;
     } catch (error) {
@@ -91,6 +91,7 @@ const EmployeeTab: React.FC<EmployeeTabProps> = ({ organisationId, contractorId}
   useEffect(() => {
     if (contractorId) {
       fetchUsers(contractorId);
+      onEmployeeAdded
     }
   }, [contractorId]);
   const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
@@ -104,12 +105,11 @@ const EmployeeTab: React.FC<EmployeeTabProps> = ({ organisationId, contractorId}
   const handleSearch = (results: any[]) => {
     setFilteredEmployees(results);
   };
-  console.log(employees,contractorId,organisationId,"888888888888yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy44444444444444444444444444")
+
 
   return (
     <div className='flex-col w-screen sm:w-full bg-white rounded-t-2xl h-screen no-scrollbar '>
       {showForm && (<AddEmployee profileType='employee' contractorId={organisationId} onEmployeeAdded={fetchUsers} onClick={() => setShowForm(false)} />)}
-      {showAttendance && (<CommonAttendance  employees={filteredEmployees.length > 0 ? filteredEmployees : employees}  />)}
 
       {!showForm &&
         <div>

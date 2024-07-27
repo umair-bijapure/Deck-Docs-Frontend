@@ -79,7 +79,7 @@ const LoginPage = (props: any): JSX.Element => {
       let decoded: any = jwtDecode(token);
       const role = decoded['role'];
       let contractorId = decoded['identifier'];
-      console.warn(contractorId,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkTTTTTTTTTTTTTTTTTTTTTTTTTTt")
+      
       let profile_data = decoded['profile'];
       let userId = decoded['identifier'];
       let admin = decoded['identifier'];
@@ -121,7 +121,7 @@ const LoginPage = (props: any): JSX.Element => {
     </button>
         <div className='m-10 bg-white  shadow-md '>
         
-          <h1 className='text-2xl flex p-4 justify-center font-bold text-[color:var(--mainTitleColor)]' >Login</h1> 
+          <h1 className='text-2xl flex p-4 justify-center font-bold text-[color:var(--mainTitleColor)]' >Loginfff</h1> 
                {showLoader ? <div className='mx-auto flex flex-col align-middle items-center mt-[-20px] justify-center'>
               <CommonSpinner/>
               </div> : <></>}

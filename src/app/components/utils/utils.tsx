@@ -55,9 +55,7 @@ export const useOrganisations = (organisationId: string | null): [Organisation[]
   
     const updatePermissions = async () => {
       try {
-        console.warn("Before fetching permissions...");
         const fetchedPermissions: Permissions = await getUserPermissions();
-        console.warn("Fetched permissions:", fetchedPermissions);
         setPermissions(fetchedPermissions);
       } catch (error) {
         if (error instanceof Error) {
@@ -69,16 +67,13 @@ export const useOrganisations = (organisationId: string | null): [Organisation[]
     };
   
     useEffect(() => {
-      console.warn("Executing updatePermissions...");
       updatePermissions();
     }, []); // Empty dependencies array ensures it runs only once after initial mount
   
     useEffect(() => {
-      console.warn("Permissions updated:", permissions);
       if (permissions.permissions.length > 0) {
         const tempPermissions: string[] = [];
         for (let i = 0; i < permissions.permissions.length; i++) {
-          console.warn(`Permission ${i}: ${permissions.permissions[i]}`);
           tempPermissions.push(permissions.permissions[i]);
         }
         setNewPermissions(tempPermissions);
@@ -1679,7 +1674,6 @@ const fileUpload = async (myFile: File) => {
 const fileUploadHome = async (myFile: File) => {
     const formData = new FormData();
     formData.append('file', myFile);
-  console.warn(formData,"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
     try {
       const response = await axios.post(
         'http://localhost:5000/api/file-upload',

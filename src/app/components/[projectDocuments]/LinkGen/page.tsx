@@ -49,7 +49,7 @@ const ProjectDocuments= (props: any): JSX.Element => {
     }
    });
 
-   console.warn(searchParams, uniqueIdentifier, folderId, project_name2,recieved_folders);
+
  } else {
    console.error('QueryString is not a string:', queryString);
  }

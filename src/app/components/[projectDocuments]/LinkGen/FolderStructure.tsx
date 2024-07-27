@@ -433,7 +433,7 @@ const FolderStructure: React.FC<FolderStructureProps> = ({ parentFolderId,projec
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [folderNames, setFolderNames] = useState<string[]>([]);
   const [popupFolder, setPopupFolder] = useState<Folder | null>(null); // Store entire folder object
-  console.warn(parentFolderId,project_name)
+
  
   const fetchFoldersByIDs = async () => {
     try {

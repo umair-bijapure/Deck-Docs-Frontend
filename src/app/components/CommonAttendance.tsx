@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { CommonButtonSolidBlue } from './common/buttons';
+import SearchComponent from '../context/search';
 
 interface User {
   _id: string;
@@ -16,7 +18,7 @@ interface User {
 }
 
 interface AttendanceProps {
-  employees: User[];
+  employees: any[];
 }
 
 interface AttendanceRecord {
@@ -29,7 +31,7 @@ interface AttendanceRecord {
 
 const CommonAttendance: React.FC<AttendanceProps> = ({ employees }) => {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
-
+  
   useEffect(() => {
     // Initialize all employees as present by default
     const today = new Date();
@@ -95,23 +97,31 @@ const CommonAttendance: React.FC<AttendanceProps> = ({ employees }) => {
       alert('Failed to update attendance');
     }
   };
+  const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
 
-
+  const handleSearch = (results: any[]) => {
+    setFilteredEmployees(results);
+  };
 
   const today = new Date();
   const currentDay = today.getDate();
 
   return (
-    <div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className='mt-2'>
+                
+            <div className='flex items-center justify-between p-2 m-2'>
+              <SearchComponent onSearch={handleSearch} employees={filteredEmployees.length > 0 ? filteredEmployees : employees} />
+              <CommonButtonSolidBlue  onClick={handleSubmit} text='Submit Attendance'/>
+            </div>
+    <div className="flex flex-wrap gap-4 mt-10">
       {attendanceRecords.map((record) => (
-        <div key={record.phone_no} className="mb-2 p-2 border rounded-lg flex flex-col items-center p-4 items-center shadow-md transition transform hover:-translate-y-1 hover:shadow-lg">
+        <div key={record.phone_no} className="mb-2 p-2 border rounded-lg flex flex-col items-center items-center shadow-md transition transform hover:-translate-y-1 hover:shadow-lg">
           <img
-            src={employees.find(emp => emp._id === record.phone_no)?.profile_picture || ''}
+            src={employees.find(emp => emp._id === record.phone_no)?.profile_picture || '/default-user-profile.png'}
             alt={`${employees.find(emp => emp._id === record.phone_no)?.first_name}`}
             className="rounded-full mb-2 w-12 h-12 object-cover"
           />
-          <span className="text-lg font-medium">{employees.find(emp => emp._id === record.phone_no)?.first_name} {employees.find(emp => emp._id === record.phone_no)?.last_name}</span>
+          <span className="text-lg font-medium truncate w-36 align-middle">{employees.find(emp => emp._id === record.phone_no)?.first_name} {employees.find(emp => emp._id === record.phone_no)?.last_name}</span>
           <div className="flex space-x-2 mt-2">
             <button
               onClick={() => handleMarkAttendance(record.phone_no, currentDay, 'P')}
@@ -135,7 +145,8 @@ const CommonAttendance: React.FC<AttendanceProps> = ({ employees }) => {
         </div>
       ))}
     </div>
-    <button onClick={handleSubmit}>Submit Attendance</button>
+
+  
   </div>
   );
 };

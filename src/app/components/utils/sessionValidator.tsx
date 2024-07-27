@@ -18,10 +18,8 @@ export async function checkIfSessionValid(): Promise<any | void> {
           Authorization: `Bearer ${cookieData}`,
         },
       });
-      console.warn(response, "Session validation responseeeeeeeeeeeeeeeeeeee");
 
       if (!response.ok) {
-          console.warn("dsuvhgsdvcsdhcvsdvcvsdhcvsdhgcvsdcghvsdghcvsdcsgdcvsdhgcvsdghcghsdcgh")
         logOutUser();
         return;
       }

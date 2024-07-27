@@ -18,6 +18,7 @@ import { CommonAddButton } from './buttons';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
 import { CommonProfile } from '../profiles/employeeProfile';
 import CreateReport from '@/app/context/[contractorId]/dashboard/TabMenu/projects/ReportFormate/page';
+import { createOrUpdateNotification, fetchOrganisationUsers } from '../utils/fetches';
 
 interface CommonGridProps {
   rows: number;
@@ -93,6 +94,7 @@ export const CommonGrid: React.FC<CommonGridProps> = ({ rows, columns, items}) =
 
 interface Document {
   document_name: string;
+  user_id:string;
   front_image: string;
   back_image: string;
   expiry: string | null;
@@ -126,6 +128,7 @@ interface CommonGridRowsProps {
   onProfileUpdate?:()=>void;
  
   items:Array<{
+   
     color: string;
     size: string;
     content: ReactNode;
@@ -134,7 +137,7 @@ interface CommonGridRowsProps {
     height:number;
     heading?:string;
     text:string;
-    id:string,//compulsory
+    _id:string,//compulsory
     profile_picture:string,//compulsory
     first_name:string;//compulsory
     createdAt:Date;//compulsory
@@ -181,7 +184,12 @@ interface CommonGridRowsProps {
     gender?:string;
     parmanent_country?:string;
     icon?:string;
-    attendance:[];
+    attendance: {
+      [key: string]: {
+        absences: number[];
+        leaves: number[];
+      };
+    };
     allowed_users:[]
     projects:[]
     company_name?:string;
@@ -215,12 +223,17 @@ export const CommonGridRows: React.FC<CommonGridRowsProps> = ({ rows, columns,it
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user');
-      setUsers(response.data); // Set the fetched users in state
+      const users = await fetchOrganisationUsers();
+      console.log("Sub Contractors:", users);
+      setUsers(users.data);
+      return users;
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching sub contractors:", error);
+      throw error;
     }
   };
+
+
   const fetchContractorCompanies = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/organisation');
@@ -349,107 +362,117 @@ const users = [...allusers, ...contractorCompanies];
   // Function to fetch document data and calculate profile completion
   const fetchAndCalculateProfileCompletion = async (phoneNo: string): Promise<ProfileCompletion | null> => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/documents/${phoneNo}`);
-      const { data } = response;
-      console.warn(data,"EGurrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrruuuuuuuuuuuuuu")
-  
-      if (data && data.documents) {
-        const fetchedDocuments: Document[] = data.documents;
-  
-        // Calculate profile completion metrics
-        const requiredDocuments = Documents;
-        const totalDocuments = requiredDocuments.length;
-        const currentDate = new Date();
-  
-        const documentExpiryInfo = fetchedDocuments.map((doc: Document) => {
-          if (doc.expiry) {
-            const expiryDate = new Date(doc.expiry);
-            const timeDiff = expiryDate.getTime() - currentDate.getTime();
-            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            const timeLeft = `${daysLeft} days`;
-            return { documentName: doc.document_name, timeLeft };
-          }
-          return { documentName: doc.document_name, timeLeft: "No expiry date" };
-        });
-  
-        const validDocuments = fetchedDocuments.filter((doc: Document) => {
-          if (doc.expiry) {
-            const expiryDate = new Date(doc.expiry);
-            return expiryDate > currentDate;
-          }
-          return false;
-        });
-  
-        const validDocumentsCount = validDocuments.length;
-        const completionPercentage = (validDocumentsCount / totalDocuments) * 100;
-        const missingDocuments = requiredDocuments.filter((docName) =>
-          !fetchedDocuments.some((doc) => doc.document_name === docName)
-        );
-  
-     // Find documents missing front_image, back_image, or document_id
-     const incompleteDocuments = fetchedDocuments.map(doc => {
-      const missingFields: string[] = [];
-      if (!doc.front_image) missingFields.push('front_image');
-      if (!doc.back_image) missingFields.push('back_image');
-      if (!doc.document_id) missingFields.push('document_id');
-      return { documentName: doc.document_name, missingFields };
-    }).filter(doc => doc.missingFields.length > 0);
+        const response = await axios.get(`http://localhost:5000/api/documents/${phoneNo}`);
+        const { data } = response;
 
+        if (data && data.documents) {
+            const fetchedDocuments: Document[] = data.documents;
+            const currentDate = new Date();
 
-  // Find dateOfBirth
-  let dateOfBirth = null;
-  for (const doc of fetchedDocuments) {
-    if (doc.attributes && doc.attributes.dateOfBirth) {
-      dateOfBirth = doc.attributes.dateOfBirth;
-      break;
-    }
-  }
+            const documentExpiryInfo = fetchedDocuments.map((doc: Document) => {
+                if (doc.expiry) {
+                    const expiryDate = new Date(doc.expiry);
+                    const timeDiff = expiryDate.getTime() - currentDate.getTime();
+                    const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-  if (!dateOfBirth) {
-    missingDocuments.push("dateOfBirth");
-  }
-  const documentDependencies = Documents.reduce((count, docName) => {
-    const document = fetchedDocuments.find(doc => doc.document_name === docName);
-    if (document) {
-      count += 1;
-      if (document.front_image) count += 1;
-      if (document.expiry) count += 1;
-    }
-    return count;
-  }, 0);
+                    // Create a notification if the document expiry is nearing
+                    if (daysLeft <= 30) {
+                        const notificationData = {
+                            this_notification_user: doc.user_id, // replace with actual user ID
+                            title: 'Document Expiry Reminder',
+                            type: 8, // replace with appropriate type
+                            text: `${doc.document_name} is about to expire in ${daysLeft} days.`,
+                            document_name: doc.document_name,
+                            
+                           
+                            senderId: 'Deck Docs', // replace with actual sender ID
+                            userIds: ['user123'] // replace with actual user IDs
+                        };
+                        createOrUpdateNotification(notificationData);
+                    }
 
-  return {
-    phoneNo,
-    completionPercentage,
-    missingDocuments,
-    incompleteDocuments,
-    documentExpiryInfo,
-    documents: fetchedDocuments,
-    dateOfBirth,
-    documentDependencies,
-  };
-      }
+                    return { documentName: doc.document_name, timeLeft: `${daysLeft} days` };
+                }
+                return { documentName: doc.document_name, timeLeft: "No expiry date" };
+            });
+
+            // Calculate profile completion metrics
+            const requiredDocuments = Documents;
+            const totalDocuments = requiredDocuments.length;
+            const validDocuments = fetchedDocuments.filter((doc: Document) => {
+                if (doc.expiry) {
+                    const expiryDate = new Date(doc.expiry);
+                    return expiryDate > currentDate;
+                }
+                return false;
+            });
+
+            const validDocumentsCount = validDocuments.length;
+            const completionPercentage = (validDocumentsCount / totalDocuments) * 100;
+            const missingDocuments = requiredDocuments.filter((docName) =>
+                !fetchedDocuments.some((doc) => doc.document_name === docName)
+            );
+
+            const incompleteDocuments = fetchedDocuments.map(doc => {
+                const missingFields: string[] = [];
+                if (!doc.front_image) missingFields.push('front_image');
+                if (!doc.back_image) missingFields.push('back_image');
+                if (!doc.document_id) missingFields.push('document_id');
+                return { documentName: doc.document_name, missingFields };
+            }).filter(doc => doc.missingFields.length > 0);
+
+            let dateOfBirth = null;
+            for (const doc of fetchedDocuments) {
+                if (doc.attributes && doc.attributes.dateOfBirth) {
+                    dateOfBirth = doc.attributes.dateOfBirth;
+                    break;
+                }
+            }
+
+            if (!dateOfBirth) {
+                missingDocuments.push("dateOfBirth");
+            }
+
+            const documentDependencies = Documents.reduce((count, docName) => {
+                const document = fetchedDocuments.find(doc => doc.document_name === docName);
+                if (document) {
+                    count += 1;
+                    if (document.front_image) count += 1;
+                    if (document.expiry) count += 1;
+                }
+                return count;
+            }, 0);
+
+            return {
+                phoneNo,
+                completionPercentage,
+                missingDocuments,
+                incompleteDocuments,
+                documentExpiryInfo,
+                documents: fetchedDocuments,
+                dateOfBirth,
+                documentDependencies,
+            };
+        }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        console.warn(`Documents not found for phone number: ${phoneNo}`);
-        return {
-          phoneNo,
-          completionPercentage: 0,
-          missingDocuments: Documents,
-          incompleteDocuments: [],
-          documentExpiryInfo: [],
-          documents: [],
-          dateOfBirth: null,
-          documentDependencies: 0,
-        };
-      } else {
-        console.error('Error fetching document data:', error);
-      }
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            return {
+                phoneNo,
+                completionPercentage: 0,
+                missingDocuments: Documents,
+                incompleteDocuments: [],
+                documentExpiryInfo: [],
+                documents: [],
+                dateOfBirth: null,
+                documentDependencies: 0,
+            };
+        } else {
+            console.error('Error fetching document data:', error);
+        }
     }
-  
-    // If there's an error or no data, return null
+
     return null;
-  };
+};
   
   const [profileCompletions, setProfileCompletions] = useState<(ProfileCompletion | null)[]>([]);
 // Calculate profile completion percentage
@@ -461,7 +484,6 @@ const users = [...allusers, ...contractorCompanies];
       });
   
       const completionList = await Promise.all(completionPromises);
-      console.warn(completionList,"ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
       setProfileCompletions(completionList);
     };
   
@@ -488,26 +510,15 @@ const users = [...allusers, ...contractorCompanies];
   };
   
 
-  console.warn(profileCompletions,"kkkkkkkkkRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRrrkkkkkkoooooooooooooooooooooooooo")
   return ( 
   <>
   
       {showProfile &&  selectedProfileData && (
         <div>
-          {/* <CommonHeader
-            circleColor={""}
-            employeeImage={selectedProfileData.profile_picture||"/default-user-profile.png"}
-            employeeName={selectedProfileData.first_name+" "+selectedProfileData.last_name}
-            addedOn={selectedProfileData.createdAt
-              ? new Date(selectedProfileData?.createdAt).toLocaleDateString('en-US')
-              : ''}
-            description={selectedProfileData.description}
-            onClick={()=>setShowProfile(false)}
-          // onDeleteClick={''} // Pass the callback function
-        /> */}
+
         {profileType=="employee"?
           <CommonProfile
-              // id={selectedProfileData.id}
+              id={selectedProfileData._id}
               profile_picture={selectedProfileData.profile_picture}
               first_name={selectedProfileData.first_name}
               last_name={selectedProfileData.last_name}

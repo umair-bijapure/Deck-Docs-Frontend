@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CommonFormTextInput, CommonInput } from './common/inputs';
 import { CommonButtonSolidBlue } from './common/buttons';
 import Calendar from 'react-calendar';
@@ -8,8 +8,23 @@ import { checkIfDateStringIncludesADate, dateObjectArrayToStringArray } from './
 
 import axios from 'axios';
 import { CommonSpinner, DangerNotification, SuccessNotification } from './common/notifications';
+interface Attendance {
+  absences: number[];
+  leaves: number[];
+}
 
+type CalendarTileProperties = {
+  date: Date;
+  view: string;
+};
+interface AttendanceData {
+  absences: number[];
+  leaves: number[];
+}
 
+type AttendanceMap = {
+  [key: string]: AttendanceData;
+};
 interface AttendanceProps {
   editedTitle: string;
   locationValue: string;
@@ -17,8 +32,8 @@ interface AttendanceProps {
   subContractorValue: string;
   clientNameValue: string;
   profileType?:string;
-  onSave: () => void;
-  attendance?:any[];
+  onSave?: () => void;
+  attendance: AttendanceMap;
   team?:string[];
   phone_no?:string;
   employees?:{
@@ -30,7 +45,7 @@ interface AttendanceProps {
     last_name?:string;
     birth_date?:string;
     phone_no?:string;
-    attendance?:[];
+    attendance: { [month: string]: Attendance };
   
     parmanent_country?:string;
     email:string;//compulsory
@@ -65,7 +80,7 @@ export const CommonAttendance: React.FC<AttendanceProps> = ({
   subContractorValue,
   clientNameValue,
   onSave,
-  attendance=[],
+  attendance = {},
   profileType,
   team,
   phone_no,
@@ -74,27 +89,66 @@ export const CommonAttendance: React.FC<AttendanceProps> = ({
   const [dateRange, setDateRange] = useState({ start: new Date(), end: new Date() });
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isInputVisible, setInputVisible] = useState(false);
-  const [calendarAvailability, setCalendarAvailability] = useState<any[]>(attendance);
+  const [calendarAvailability, setCalendarAvailability] = useState<AttendanceMap>({});
+
   const [showList, setShowList] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [message, setMessage] = useState('');
   const [showLoader, setShowLoader] = useState(false);
 
-  
+  useEffect(() => {
+    const transformedAttendance = transformAttendance(attendance);
+    setCalendarAvailability(transformedAttendance);
+  }, [attendance]);
 
-  const updateCalendarAvailability = async(newData:any) => {
-    try{
-      const response = await axios.put(`http://localhost:5000/api/user/${phone_no}`, {attendance:dateObjectArrayToStringArray(newData)}, {
+
+  const transformAttendance = (attendance: AttendanceMap): { [key: string]: { absences: number[], leaves: number[] } } => {
+    const result: { [key: string]: { absences: number[], leaves: number[] } } = {};
+  
+    Object.entries(attendance).forEach(([key, value]: [string, AttendanceData]) => {
+      const [year, month, day] = key.split('-').map(Number);
+      const baseDate = new Date(year, month - 1, day);
+      const monthName = baseDate.toLocaleString('default', { month: 'short' });
+  
+      if (!result[monthName]) {
+        result[monthName] = { absences: [], leaves: [] };
+      }
+  
+      value.absences.forEach(absence => {
+        result[monthName].absences.push(absence);
+      });
+  
+      value.leaves.forEach(leave => {
+        result[monthName].leaves.push(leave);
+      });
+    });
+  
+    return result;
+  };
+  
+  
+  
+  const updateCalendarAvailability = async (newData: { [month: string]: { absences: number[]; leaves: number[] } }) => {
+    try {
+      const month = new Date().toLocaleString('default', { month: 'short' });
+      
+      await axios.put(`http://localhost:5000/api/user/${phone_no}/attendance`, {
+        attendance: {
+          [month]: newData[month] || { absences: [], leaves: [] }
+        }
+      }, {
         headers: {
-          'Content-Type': "application/json"
+          'Content-Type': 'application/json',
         }
       });
-      setMessage("Calendar Updated Successfully!");
-      //getStoreData();
-    }catch(e){
-      setMessage("Error Updating Image");
+  
+      setMessage('Calendar Updated Successfully!');
+    } catch (e) {
+      setMessage('Error Updating Calendar');
     }
-  }
+  };
+  
+  
   const handleDateChange = (newDateRange: any, event: any) => {
     setDateRange({ start: newDateRange[0], end: newDateRange[1] });
   };
@@ -113,34 +167,93 @@ export const CommonAttendance: React.FC<AttendanceProps> = ({
     maxDate.setMonth( today.getMonth() + 3 );
     return maxDate;
   };
-  const addDate = async (date: Date) => {
-    const newData = [...calendarAvailability, date.toString()];
-  
-    // Update the state only after the asynchronous operation is complete
-    try {
-      await updateCalendarAvailability(newData);
-      setCalendarAvailability(newData);
-    } catch (error) {
-      // Handle the error if needed
-      console.error("Error updating calendar availability:", error);
+  const [attendanceStatus, setAttendanceStatus] = useState<'P' | 'A' | 'L'>('P');
+
+const handleStatusChange = (status: 'P' | 'A' | 'L') => {
+  setAttendanceStatus(status);
+};
+const tileClassName = ({ date }: { date: Date }) => {
+  const dateString = date.toDateString();
+  const month = date.toLocaleString('default', { month: 'short' });
+  const day = date.getDate();
+
+  // Check if the month entry exists
+  const monthData = calendarAvailability[month];
+  if (monthData) {
+    // Check if the date (day) is in absences or leaves
+    const isHighlighted = monthData.absences.includes(day) || monthData.leaves.includes(day);
+    return isHighlighted ? 'react-calendar__tile--active bg-[color:var(--primaryPink)] text-white' : '';
+  }
+
+  return '';
+};
+
+
+const addDate = async (date: Date) => {
+  const month = date.toLocaleString('default', { month: 'short' });
+  const day = date.getDate();
+
+  // Create a copy of the current calendar availability
+  const newData: AttendanceMap = { ...calendarAvailability };
+
+  // Initialize the month entry if it does not exist
+  if (!newData[month]) {
+    newData[month] = { absences: [], leaves: [] };
+  }
+
+  // Update the attendance data based on the status
+  if (attendanceStatus === 'A') {
+    if (!newData[month].absences.includes(day)) {
+      newData[month].absences.push(day);
     }
-  };
-  
-  const removeDate = async (date: Date) => {
-    const dtString = date.toString();
-    const newData = calendarAvailability.filter((val) => val !== dtString);
-  
-    // Update the state only after the asynchronous operation is complete
-    try {
-      await updateCalendarAvailability(newData);
-      setCalendarAvailability(newData);
-    } catch (error) {
-      // Handle the error if needed
-      console.error("Error updating calendar availability:", error);
+  } else if (attendanceStatus === 'L') {
+    if (!newData[month].leaves.includes(day)) {
+      newData[month].leaves.push(day);
     }
-  };
+  } else if (attendanceStatus === 'P') {
+    // Mark as present: Remove the date from absences and leaves if present
+    newData[month].absences = newData[month].absences.filter(d => d !== day);
+    newData[month].leaves = newData[month].leaves.filter(d => d !== day);
+  }
+
+  // Update the calendar availability
+  try {
+    await updateCalendarAvailability(newData);
+    setCalendarAvailability(newData);
+  } catch (error) {
+    console.error('Error updating calendar availability:', error);
+  }
+};
+
+const removeDate = async (date: Date) => {
+  const month = date.toLocaleString('default', { month: 'short' });
+  const day = date.getDate();
+
+  // Create a copy of the current calendar availability
+  const newData: AttendanceMap = { ...calendarAvailability };
+
+  // Initialize the month entry if it does not exist
+  if (!newData[month]) {
+    newData[month] = { absences: [], leaves: [] };
+  }
+
+  // Remove the date from absences and leaves if present
+  newData[month].absences = newData[month].absences.filter(d => d !== day);
+  newData[month].leaves = newData[month].leaves.filter(d => d !== day);
+
+  // Update the calendar availability
+  try {
+    await updateCalendarAvailability(newData);
+    setCalendarAvailability(newData);
+  } catch (error) {
+    console.error('Error updating calendar availability:', error);
+  }
+};
+
+
+
+
   
-console.warn(profileType,attendance,"{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{[[[[[[[[[")
   return (
     <>
             {errorMessage.length > 0 ? 
@@ -160,35 +273,39 @@ console.warn(profileType,attendance,"{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{[[[[[[[[
                 {/* <CollapsibleComponent expanded={true} leftIcon={"Regular Attendance"} > */}
                 <div className="hidden sm:block calendar-container overflow-x-scroll no-scrollbar ">
                 <Calendar
-                  className="mx-auto"
-                  tileClassName={({ date }: { date: any }) => {
-                    const dateString = date.toDateString();
-                    const isHighlighted = checkIfDateStringIncludesADate(calendarAvailability, dateString);
-
-                    // Add the styles directly based on the highlighted condition
-                    const tileStyles = isHighlighted
-                      ? 'react-calendar__tile--active bg-[color:var(--primaryPink)] text-white' // Adjust based on your Tailwind setup
-                      : '';
-
-                    return `react-calendar__tile ${tileStyles}`;
-                  }}
-                  minDate={getMinDate()}
-                  maxDate={getMaxDate()}
-                  onChange={(e: any) => setSelectedDate(e)}
-                />
+              className="mx-auto"
+              tileClassName={tileClassName}
+              minDate={getMinDate()}
+              maxDate={getMaxDate()}
+              onChange={(e: any) => setSelectedDate(e)}
+            />
         
-        {selectedDate ? <div className='my-6 flex flex-row align-middle justify-center mx-auto'>
-          {/* <div className='mx-6 my-2'>
-            {checkIfDateStringIncludesADate(attendance, selectedDate) ? <p className='p-2 rounded-sm text-lg font-semibold bg-[color:var(--textColor)] text-[color:var(--textFieldBackground)]'>Absent</p> : <p className='p-2 rounded-sm text-lg font-semibold bg-[color:var(--primaryPink)] text-[color:var(--textFieldBackground)]'>Present</p> }
-          </div> */}
-          <div className='flex-col mx-6 my-2'>
-            {checkIfDateStringIncludesADate(attendance, selectedDate) ? <button onClick={(e)=>{
-              removeDate(selectedDate);
-              }} className='p-2 shadow-lg m-10 rounded-lg text-lg font-semibold bg-[color:var(--primaryPink)] text-[color:var(--textFieldBackground)]'>Mark as Present</button> : <button onClick={(e)=>{
-                addDate(selectedDate);
-                }} className='p-2 shadow-lg  m-10 rounded-lg text-lg font-semibold bg-[color:var(--textColor)] text-[color:var(--textFieldBackground)]'>Mark as Absent</button> }
-          </div>
-        </div>: <></> }
+        {selectedDate && (
+            <div className='my-6 flex flex-row align-middle justify-center mx-auto'>
+              <div className='flex-col mx-6 my-2'>
+                <button
+                  onClick={() => handleStatusChange('A')}
+                  className='p-2 shadow-lg m-10 rounded-lg text-lg font-semibold bg-[color:var(--primaryPink)] text-[color:var(--textFieldBackground)]'>
+                  Mark as Absent
+                </button>
+                <button
+                  onClick={() => handleStatusChange('L')}
+                  className='p-2 shadow-lg m-10 rounded-lg text-lg font-semibold bg-[color:var(--textColor)] text-[color:var(--textFieldBackground)]'>
+                  Mark as Leave
+                </button>
+                <button
+                  onClick={() => handleStatusChange('P')}
+                  className='p-2 shadow-lg m-10 rounded-lg text-lg font-semibold bg-[color:var(--textColor)] text-[color:var(--textFieldBackground)]'>
+                  Mark as Present
+                </button>
+                <button
+                  onClick={() => addDate(selectedDate)}
+                  className='p-2 shadow-lg m-10 rounded-lg text-lg font-semibold bg-[color:var(--primaryGreen)] text-[color:var(--textFieldBackground)]'>
+                  Apply Status
+                </button>
+              </div>
+            </div>
+          )}
 
                   </div>
                 {/* </CollapsibleComponent> */}

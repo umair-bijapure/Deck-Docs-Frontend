@@ -102,11 +102,11 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ folderId, refreshData,i
           try {
             const uploadPromises: Promise<string>[] = Array.from(files).map(async (file) => {
               // Use the getUploadedImageLink function to get the AWS link for the uploaded file
-              console.warn(file,"rrrrrrrrrrrrFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+         
               const awsLink = await getUploadedImageLink(file);
         
               // Prepare file metadata
-              console.warn(file.name,"ccccccccccccccccccccccccckkkkkkkkkkkkkk")
+             
               const fileData = {
                 filename: file.name,
                 type: file.type,

@@ -264,7 +264,6 @@ const useSocket = () => {
   }, []);
 
   useEffect(() => {
-    console.warn(socket, "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
   }, [socket]);
 
   return socket;
@@ -290,20 +289,16 @@ export const Notificationsss: React.FC<NotificationsProps> = () => {
   useEffect(() => {
     if (socket) {
       socket.on('foldersAdded', (folders: any[]) => {
-        console.warn('New folders added:', folders);
         // Handle new folders here
       });
       socket.on('projectsAdded', (projects: any[]) => {
-        console.warn('New projects added:', projects);
         // Handle new projects here
       });
       socket.on('usersAdded', (users: any[]) => {
-        console.warn('New users added:', users);
         // Handle new users here
       });
     }
   }, [socket]);
-console.warn(socket,notifications,"9999999999999999999999999999999999999999999999999999999999999999999999999")
   return (
     <div className="bg-gray-100 p-4">
       <h2 className="text-xl font-semibold mb-4">Notifications</h2>

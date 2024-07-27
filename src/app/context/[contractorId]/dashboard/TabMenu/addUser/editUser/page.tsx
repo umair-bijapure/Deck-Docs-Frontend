@@ -72,7 +72,7 @@ const UserProfile = (props: any): JSX.Element => {
 
       // Ensure boolean fields are correctly set
       if (updatedData.is_supervisor === '') updatedData.is_supervisor = false;
-      if (updatedData.is_client === '') updatedData.is_client = false;
+     
       if (updatedData.is_hsc_officer === '') updatedData.is_hsc_officer = false;
       if (updatedData.email_verified === '') updatedData.email_verified = false;
 
@@ -110,7 +110,7 @@ const UserProfile = (props: any): JSX.Element => {
         <form onSubmit={handleFormSubmit} className='font-semibold text-lg grid grid-cols-3 gap-x-2 gap-y-2'>
           {!isSettingsMode && (
             inputFields.map((field, index) => (
-              !['is_client', 'is_hsc_officer', 'is_supervisor','email_verified'].includes(field.label2) &&
+              !['is_hsc_officer', 'is_supervisor','email_verified'].includes(field.label2) &&
               <div key={field.label2} className=''>
                 <div className='flex flex-col'>
                   <label className='col-span-1 mb-[1px] text-[10px] text-[color:var(--mainTitleColor)]' htmlFor={field.label2}>
@@ -129,7 +129,7 @@ const UserProfile = (props: any): JSX.Element => {
             ))
           )}
           {isSettingsMode && (
-            ['is_client', 'is_hsc_officer', 'is_supervisor','email_verified'].map(key => (
+            ['is_hsc_officer', 'is_supervisor','email_verified'].map(key => (
               <div key={key} className=''>
                 <div className='grid grid-cols-2 sm:grid-cols-3 justify-between items-start'>
                   <label className='col-span-1 mb-[1px] text-[10px] text-[color:var(--mainTitleColor)]' htmlFor={key}>

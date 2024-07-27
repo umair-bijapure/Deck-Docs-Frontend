@@ -7,6 +7,7 @@ import {  getUploadedImageLink, toBase64 } from '../utils/utils';
 import axios from 'axios';
 import { CommonButtonSolidBlue } from './buttons';
 import CommonPopup from './popUp';
+import { CommonSpinner } from './notifications';
 
 interface CommonDocumentListProps {
     userId?:string;
@@ -336,7 +337,7 @@ interface CommonDocumentListProps {
       };
       const collectDocumentData = (docType: string) => {
         const dataToCollect = [];
-        console.warn("COmming over here")
+     
         switch (docType) {
           case 'EmiratesId':
             // Collect data for EmiratesId
@@ -395,6 +396,11 @@ interface CommonDocumentListProps {
       }));
     return(
         <div className='flex flex-col justify-center'>
+              {showLoader && (
+      <div className="mx-auto flex flex-col align-middle items-center justify-center">
+        <CommonSpinner />
+      </div>
+    )}
             <div
                 style={{ width: '100%', height: 'auto' }}
                  

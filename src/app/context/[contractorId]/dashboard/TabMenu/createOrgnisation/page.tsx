@@ -4,21 +4,26 @@ import { standardFetch } from '@/app/components/utils/fetches';
 import React, { useState } from 'react';
 
 import styled, { keyframes } from 'styled-components';
-import { FaBuilding, FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCity, FaGlobe, FaCogs, FaSpinner, FaFlag } from 'react-icons/fa';
+import { FaBuilding, FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCity, FaGlobe, FaCogs, FaSpinner, FaFlag, FaArrowLeft, FaLock } from 'react-icons/fa';
 import { CommonSpinner } from '@/app/components/common/notifications';
 
 
 interface CreateOrganisationFormProps {
-  parentOrganisationId: string;}
+  parentOrganisationId: string;
+  onClick: () => void;
+}
   interface OrganisationResponse {
     status: number;
     data?: any; // Replace `any` with your actual expected data type
     message?: string;
+    
   }
   
 const CreateOrganisationForm = (props: any): JSX.Element => {
 
   const {parentOrganisationId} = props as CreateOrganisationFormProps
+  const {onClick} = props as CreateOrganisationFormProps
+
     const [name, setName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [phoneNo, setPhoneNo] = useState('');
@@ -32,7 +37,7 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
-
+  const [password, setPassword] = useState('');
   const handleCreateSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -68,6 +73,7 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
       city,
       state,
       country,
+      password,
       services: services.split(','), // Assuming services are comma-separated
     };
     let createOrganisation: OrganisationResponse | undefined=undefined; 
@@ -79,14 +85,12 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
         body: JSON.stringify(requestBody),
         contentType: 'application/json',
       });
-      console.warn(createOrganisation,"1111111111111111))))))))))))))))))))@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
       setShowLoader(false);
         setSuccess(true); // Set success state to true on successful creation
         setError('');
 
       
     } catch (error) {
-      console.warn(createOrganisation,"))))))))))))))))))))@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
       setShowLoader(false);
       setSuccess(false);
         if (error instanceof Error) {
@@ -106,8 +110,17 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
       setShowLoader(false);
     }
   };
+  const handlePasswordChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+    setPassword(e.target.value);
+  };
 
   return (
+    <>
+          <div className=" text-[18px] gap-x-2 m-2 p-2 text-gray-700 hover:from-green-500 hover:to-green-400 hover:ring-2 hover:ring-offset-2 hover:ring-gray-200 transition-all ease-out duration-300 cursor-pointer" onClick={onClick}>
+        <FaArrowLeft />
+        <h1 className="text-lg">Back</h1>
+      </div>
+  
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
             {showLoader && (
       <div className="mx-auto flex flex-col align-middle items-center mt-[-20px] justify-center">
@@ -162,6 +175,19 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 ease-in-out"
           />
         </div>
+        <div className="flex items-center space-x-2">
+              <FaLock className="text-gray-500" />
+              <input
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+               
+                placeholder="Enter password"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300 ease-in-out"
+
+              />
+             
+            </div>
         <div className="flex items-center space-x-2">
           <FaMapMarkerAlt className="text-gray-500" />
           <input
@@ -227,6 +253,7 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
       
       </form>
     </div>
+    </>
   );
 };
 

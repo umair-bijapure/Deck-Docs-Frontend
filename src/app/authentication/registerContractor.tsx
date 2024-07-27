@@ -115,10 +115,10 @@ company_name,
           cookies.set('token', token);
           let decoded: any = jwtDecode(token);
           const role = decoded['role'];
-          let contractorId = decoded['email']
-          if (role == 'contractor_company') {
-            router.replace(`/context/${encodeURIComponent(contractorId)}/dashboard/`);
-            return;
+          let contractorId = decoded['identfier']
+          if (role == 'organisation') {
+            router.push(`/context/${encodeURIComponent(contractorId)}/dashboard/`);
+            
           }}else{
             
             const token = data['message'];
@@ -149,7 +149,7 @@ company_name,
       ×
     </button>
         {/* <h1 className='text-2xl flex justify-center items-center font-bold text-[color:var(--mainTitleColor)]' >Contractor Registration</h1>  */}
-        <label htmlFor="profileImageInput" className='flex justify-center shadow-md items-center '>
+        {/* <label htmlFor="profileImageInput" className='flex justify-center shadow-md items-center '>
                 <img
                     id='contractor_company_profile'
                     src={'/engineer 1.png'}
@@ -166,7 +166,7 @@ company_name,
                     
                 />
                 
-        </label>
+        </label> */}
 
         {errorMessage?.length > 0 ? 
           
@@ -181,8 +181,8 @@ company_name,
         {showLoader ? <div className='mx-auto flex flex-col align-middle items-center mt-[-20px] justify-center'>
             <CommonSpinner/>
       </div> : <></>}
-        <form onSubmit={formSubmitHandler} className="sm:my-2">
-        <div className='grid grid-cols-6 p-2 sm:p-6'>
+        <form onSubmit={formSubmitHandler} className="sm:my-2 flex flex-col">
+     
             <div className="col-span-6 sm:col-span-3 p-1 sm:p-2 ">
                 <CommonIconInput
                     id="name"
@@ -254,7 +254,7 @@ company_name,
                     }} className='my-auto mr-2 w-fit' value="accept"/>
                   <p className='font-semibold text-sm text-gray-400 '>I accept the <Link target={"_blank"} className='underline' href={""}>Terms & Conditions</Link></p>
             </div>
-        </div>
+     
 
 
         <div className='flex justify-center sm:mt-6'onClick={()=> setShowLoader(true)}>
