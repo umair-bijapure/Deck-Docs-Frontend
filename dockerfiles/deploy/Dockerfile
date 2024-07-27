@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:16.17.1-bullseye-slim as builder
+FROM node:22-bullseye-slim as builder
 
 ENV NODE_ENV=production
 
