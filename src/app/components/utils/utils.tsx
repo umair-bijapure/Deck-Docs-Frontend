@@ -1659,7 +1659,7 @@ const fileUpload = async (myFile: File) => {
     const formData = new FormData();
     formData.append('file', file);
     const response = await axios.post(
-      'http://127.0.0.1:5000/api/file-upload',
+      `${process.env.NEXT_PUBLIC_API_URL}/file-upload`,
       formData,
       {
         headers: {
@@ -1676,7 +1676,7 @@ const fileUploadHome = async (myFile: File) => {
     formData.append('file', myFile);
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/file-upload',
+        `${process.env.NEXT_PUBLIC_API_URL}/file-upload`,
         formData,
         {
           headers: {

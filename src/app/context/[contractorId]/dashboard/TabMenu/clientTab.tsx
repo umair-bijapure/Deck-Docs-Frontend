@@ -19,7 +19,7 @@ const ClientTab: React.FC  <{ contractorId: string}> =({contractorId})=>{
     const [clients, setClients] = useState<any>([]);
     const [showSearch, setShowSearch] = useState(true);
     const getData = async () => {
-      const response = await axios.get(`http://localhost:5000/api/user/clients/${contractorId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/clients/${contractorId}`);
       const respData = response.data;
       
       setClients(respData);

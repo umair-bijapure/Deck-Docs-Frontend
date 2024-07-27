@@ -84,7 +84,7 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ folderId, refreshData,i
   // Function to fetch all documents within a folder
   const fetchFolderContents = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/file/folders/${folderId}/files`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/file/folders/${folderId}/files`);
       setFolderContents(response.data);
     } catch (error) {
       console.error('Error fetching folder contents:', error);

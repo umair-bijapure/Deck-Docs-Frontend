@@ -191,7 +191,7 @@ const handleUpload = async () => {
         projectId: selectedFolder ? (selectedFolder.name === currentItemKey ? projectId : "") : "",
         contractor_company: contractor_company
       };
-      const response = await axios.post('http://localhost:5000/api/folder/create-folder', folderData);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/create-folder`, folderData);
       let updatedParentFolderId = response.data._id;
       setParentFolderId(updatedParentFolderId)
       parentFolderId=updatedParentFolderId
@@ -214,7 +214,7 @@ const handleUpload = async () => {
    
       // Send folderData to the backend
       if(currentItem.kind === 'directory') {
-      const response = await axios.post('http://localhost:5000/api/folder/create-folder', folderData);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/create-folder`, folderData);
       const updatedParentFolderId = response.data._id;
       // Update parentFolderId of child folders in the queue
 
@@ -245,12 +245,12 @@ const handleUpload = async () => {
     };
 
     // Send data to the backend to generate the password-protected link
-    const response = await axios.post('http://localhost:5000/api/folder/linkGen', uploadData);
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/linkGen`, uploadData);
     const uniqueIdentifier = response.data.uniqueIdentifier;
 
     // Construct the shareable link using the unique identifier and folder ID
     // const link = `http://localhost:3000/components/password-protected?uniqueIdentifier=${uniqueIdentifier} folderId=${parentFolderId} projectId=${projectId}/LinkGen`;
-    const link = `http://localhost:3000/components/uniqueIdentifier=${uniqueIdentifier} folderId=${parentFolderId} projectId=${projectId}/LinkGen`;
+    const link = `http://deckndocs.com/components/uniqueIdentifier=${uniqueIdentifier} folderId=${parentFolderId} projectId=${projectId}/LinkGen`;
     
     // Set the shareable link in state or use it as needed
     setShareableLink(link);
@@ -279,7 +279,7 @@ const handleFileUpload = async (file,folderId,awsLink,filename,size,type) => {
     };
 
     // Save file metadata to the backend
-    await axios.post(`http://localhost:5000/api/file/${folderId}`, fileData);
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/file/${folderId}`, fileData);
 
 
     return awsLink;
@@ -297,7 +297,7 @@ const handleFileUpload = async (file,folderId,awsLink,filename,size,type) => {
             throw new Error('Password is not set.');
         }
 
-        const response = await axios.put(`http://localhost:5000/api/folder/folder/${parentFolderId}/set-password`, { password });
+        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${parentFolderId}/set-password`, { password });
 
         console.log('Password set successfully:', response.data);
         alert('Password set successfully for the parent folder!');

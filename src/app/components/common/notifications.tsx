@@ -255,7 +255,7 @@ const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:5000');
+    const socketInstance = io(`${process.env.NEXT_PUBLIC_API_URL}`);
     setSocket(socketInstance);
 
     return () => {
@@ -276,7 +276,7 @@ export const Notificationsss: React.FC<NotificationsProps> = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get<{ notifications: Notification[] }>('http://localhost:5000/api/notifications');
+        const response = await axios.get<{ notifications: Notification[] }>(`${process.env.NEXT_PUBLIC_API_URL}/notifications`);
         setNotifications(response.data.notifications);
       } catch (error) {
         console.error('Error fetching notifications:', error);

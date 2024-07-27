@@ -131,7 +131,7 @@ export enum UserTypes {
       
       // setErrorMessage('Please try again');
       axios
-        .put(`http://localhost:5000/api/contractor_company/${username}`, body, {
+        .put(`${process.env.NEXT_PUBLIC_API_URL}/contractor_company/${username}`, body, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -190,7 +190,7 @@ export enum UserTypes {
     const handleEmployeeAdded = async (id:string) => {
    
  
-      const response = await axios.get(`http://localhost:5000/api/user/${id}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`);
       const respData = response.data;
       setEmployees((prevData:any)=>[...prevData,...respData])
       fetchUsers(); // Fetch the updated employee list
@@ -206,7 +206,7 @@ export enum UserTypes {
 // Modify the fetchNotifications function to fetch notifications and calculate unreadCount
 const fetchNotifications = async (username:string) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/notification/notifications/${username}`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notification/notifications/${username}`);
     setNotifications(response.data);
     // Calculate unread count
     const unreadNotifications = response.data.filter((notification: { read: any; }) => !notification.read);
@@ -225,7 +225,7 @@ const handleNotificationTabClick = async () => {
   try {
     // Update backend to mark notifications as read
     setIsNotificationsExpanded(prevState => !prevState);
-    await axios.put(`http://localhost:5000/api/notification/update/${username}`);
+    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/notification/update/${username}`);
     // Refetch notifications to get updated data
     fetchNotifications(username);
   } catch (error) {

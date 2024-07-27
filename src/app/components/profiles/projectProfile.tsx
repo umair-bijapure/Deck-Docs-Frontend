@@ -227,7 +227,7 @@ interface CommonProfileProps {
         // Push the new project_name to the current_projects array
         employeeDetails.current_projects.push(project_name);
         // Make a PUT request to update the user data
-        const updateResponse = await axios.put(`http://localhost:5000/api/user/${employeeDetails._id}`, employeeDetails);
+        const updateResponse = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/${employeeDetails._id}`, employeeDetails);
     
         // Handle the update response if needed
         console.log("User data updated:", updateResponse.data);
@@ -289,7 +289,7 @@ interface CommonProfileProps {
         }
     
         // Make a PUT request to update the user data
-        const updateResponse = await axios.put(`http://localhost:5000/api/user/${employeeDetails._id}`, employeeDetails);
+        const updateResponse = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/${employeeDetails._id}`, employeeDetails);
         await handleSubmit();
         // Handle the update response if needed
         console.log("User data updated:", updateResponse.data);
@@ -340,7 +340,7 @@ interface CommonProfileProps {
                 
             
         // Update the project on the server
-        const response = await axios.put(`http://localhost:5000/api/project/${project_id}`, updatedData);
+        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${project_id}`, updatedData);
     
         console.log('Updated successfully:', response.data);
       } catch (error) {
@@ -385,7 +385,7 @@ const [rolesState, setRoles] = useState({});
       };
     
       // Send updated data to the backend
-      axios.put(`http://localhost:5000/api/project/${project_id}`, updatedData)
+      axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${project_id}`, updatedData)
         .then(response => {
           console.log("Roles updated successfully:", response.data);
         })
@@ -449,7 +449,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
     };
     const fetchContractorCompanies = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/organisation');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/organisation`);
         const contractorCompanies = response.data;
         setContractorCompanies(contractorCompanies); // Set the fetched contractor companies in state
       } catch (error) {
@@ -468,7 +468,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
         const updatedProjectSubContractors = [...projectSubContractors, contractorId];
     
         // Update project data on the server
-        await axios.put(`http://localhost:5000/api/project/${project_id}`, { project_sub_contractors: updatedProjectSubContractors });
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${project_id}`, { project_sub_contractors: updatedProjectSubContractors });
         
         console.log('Contractor added to project successfully');
       } catch (error) {
@@ -479,7 +479,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
     const removeContractorFromProject = async (projectId: any, contractorId: any) => {
       try {
         // Fetch current project data
-        const projectData = await axios.get(`http://localhost:5000/api/project/${projectId}`);
+        const projectData = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`);
     
         // Remove contractor from the project data
         const updatedProjectData = {
@@ -488,7 +488,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
         };
     
         // Update project data on the server
-        await axios.put(`http://localhost:5000/api/project/${projectId}`, updatedProjectData);
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`, updatedProjectData);
         
         console.log('Contractor removed from project successfully');
       } catch (error) {
@@ -510,7 +510,7 @@ const [selectedContractor, setSelectedContractor] = useState<{ value: string; la
                 const updatedProjectSubContractors = [...projectSubContractors, selectedContractor.value];
                 
                 // Update project data on the server with title, description, and contractorId
-                await axios.put(`http://localhost:5000/api/project/${project_id}`, {
+                await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${project_id}`, {
                     title: title,
                     description: description,
                     contractorId: (selectedContractor as { value: string }).value,

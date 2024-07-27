@@ -236,7 +236,7 @@ export const CommonGridRows: React.FC<CommonGridRowsProps> = ({ rows, columns,it
 
   const fetchContractorCompanies = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/organisation');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/organisation`);
       const contractorCompanies = response.data;
       setContractorCompanies(contractorCompanies); // Set the fetched contractor companies in state
     } catch (error) {
@@ -279,7 +279,7 @@ export const CommonGridRows: React.FC<CommonGridRowsProps> = ({ rows, columns,it
     try {
       const selectedUserIds = Object.keys(selectedEmployees).filter(userId => selectedEmployees[userId]);
       await Promise.all(profileIds.map(profileId => 
-        axios.put(`http://localhost:5000/api/profile/${profileId}/give-access`, { userIds: selectedUserIds })
+        axios.put(`${process.env.NEXT_PUBLIC_API_URL}/profile/${profileId}/give-access`, { userIds: selectedUserIds })
       ));
   
       // Handle success and update UI accordingly
@@ -293,7 +293,7 @@ export const CommonGridRows: React.FC<CommonGridRowsProps> = ({ rows, columns,it
     try {
       const selectedUserIds = Object.keys(selectedEmployees).filter(userId => selectedEmployees[userId]);
       await Promise.all(profileIds.map(profileId => 
-        axios.put(`http://localhost:5000/api/profile/${profileId}/revoke-access`, { userIds: selectedUserIds })
+        axios.put(`${process.env.NEXT_PUBLIC_API_URL}/profile/${profileId}/revoke-access`, { userIds: selectedUserIds })
       ));
   
       // Handle success and update UI accordingly
@@ -317,7 +317,7 @@ const handleTogglePopup2 = () => {
 const handleShareProfiles = async (selectedUserIds: string[]) => {
   try {
     // Call the backend API to share profiles with selected users
-    await axios.put('http://localhost:5000/api/user/share-profiles', {
+    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/share-profiles`, {
       selectedUserIds,
       selectedEmployees, // Assuming selectedEmployees contains the list of employee phone numbers to share profiles
       contractorId
@@ -337,7 +337,7 @@ const handleShareProfiles = async (selectedUserIds: string[]) => {
 const handleRemoveEmployee = async (userId:string,phone_no: string) => {
   try {
     // Call the backend API to revoke access for the specified employee
-    await axios.put('http://localhost:5000/api/user/revoke-access',{
+    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/revoke-access`,{
       userId,
       phone_no
     });
@@ -362,7 +362,7 @@ const users = [...allusers, ...contractorCompanies];
   // Function to fetch document data and calculate profile completion
   const fetchAndCalculateProfileCompletion = async (phoneNo: string): Promise<ProfileCompletion | null> => {
     try {
-        const response = await axios.get(`http://localhost:5000/api/documents/${phoneNo}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/documents/${phoneNo}`);
         const { data } = response;
 
         if (data && data.documents) {

@@ -37,7 +37,7 @@ export const Reportstab: React.FC<Props> = ({contractorId,project_name, project_
  let profile_data = decoded['profile'];
  let contractorid=contractorId;
  const getData = async() => {
-   const response = await axios.get(`http://localhost:5000/api/reports/project/reports/${project_id}`);
+   const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reports/project/reports/${project_id}`);
    
    
    const respData = response.data;

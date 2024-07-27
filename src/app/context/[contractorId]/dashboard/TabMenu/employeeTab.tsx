@@ -127,16 +127,7 @@ const EmployeeTab: React.FC<EmployeeTabProps> = ({ organisationId, contractorId,
                 />
 
               </div>
-              <div  className='p-2' onClick={() => setShowAttendance(true)}>
-              <CommonAddButton
-                  icon={faUserPlus}
-                  color="color:var(--mainTitleColor)" // Add your desired color here
-                  title="Attendance"
-                  width={20}
-                  height={20}
-                  className='shadow-md cursor-pointer hover:scale-105 duration-300'
-                />
-              </div>
+ 
             </div>
             {showSearch &&
             <div >

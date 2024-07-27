@@ -142,26 +142,30 @@ export const ProjectsTab: React.FC<{ contractorId: string, employees:any,recieve
   const [showForm, setShowForm] = useState(false);
   const [projects, setProjects] = useState<any>([]);
   const [projects2, setProjects2] = useState<any>([]);
+
   const fetchProjectsByIDs = async () => {
     try {
-      if(recieved_projects){
-        const response = await axios.get('http://localhost:5000/api/project/recievedProjects/projectbyIds', {
-            params: { ids: recieved_projects } // Pass project IDs as query parameters
-        });
-        setProjects2(response.data)
-        return response.data;
-      }
-        
+        if (recieved_projects && recieved_projects.length > 0) {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/project/recievedProjects/projectbyIds`, {
+                params: { ids: recieved_projects } // Pass project IDs as query parameters
+            });
+            setProjects2(response.data);
+            return response.data;
+        } else {
+            // If recieved_projects is empty, return an empty array or handle it as needed
+            setProjects2([]);
+            return [];
+        }
     } catch (error) {
         console.error('Error fetching projects by IDs:', error);
         throw error; // You can handle the error appropriately in your UI
     }
 };
-  useEffect(() => {
 
-  
+useEffect(() => {
     fetchProjectsByIDs();
-  }, []);
+}, [recieved_projects]);
+
   
   
   

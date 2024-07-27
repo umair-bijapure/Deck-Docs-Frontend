@@ -242,7 +242,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
         setFileData(updatedData);
         if (attributeName!=="back_image" && attributeName!=="front_image"){
                 try{
-                const response = await axios.post('http://localhost:5000/api/documents/create-document', updatedData);
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/documents/create-document`, updatedData);
               } catch (error: any) {
                 console.error('Error submitting form:', error.message);
               }
@@ -403,7 +403,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
         };
         setIsAnyDocumentUploading(false)
         // Proceed with saving the document data...
-        const response = await axios.post('http://localhost:5000/api/documents/create-document', updatedFormValues);
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/documents/create-document`, updatedFormValues);
         // Find the index of the selected document in the documents array
         const selectedIndex = documents.findIndex(doc => doc.name === selectedDoc);
 
@@ -584,7 +584,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
       handleImageUpload(syntheticEvent,'front');
     
 
-      const res = await fetch('http://127.0.0.1:5000/api/fileUploader/fileUploader', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/fileUploader`, {
         method: 'POST',
         body: formData,
       });
@@ -633,7 +633,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
       } as unknown as React.ChangeEvent<HTMLInputElement>;
       handleImageUpload(syntheticEvent,'back');
 
-      const res = await fetch('http://127.0.0.1:5000/api/fileUploader/fileUploader', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/fileUploader`, {
         method: 'POST',
         body: formData,
       });
@@ -692,7 +692,7 @@ const commonInputRef = useRef<HTMLInputElement | null>(null);
 commonInputRefs.push(commonInputRef);
 const fetchDocumentData = async () => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/documents/${userId}`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/documents/${userId}`);
 
     // Assuming the response data structure matches the MongoDB document structure
     const { data } = response;

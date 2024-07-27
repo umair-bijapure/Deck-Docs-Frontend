@@ -278,7 +278,7 @@ const CertificateUploader: React.FC<CommonCertificateProps> = ({ contractorId, p
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/fileUploader/pdfUploader', formData, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/pdfUploader`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -313,7 +313,7 @@ const CertificateUploader: React.FC<CommonCertificateProps> = ({ contractorId, p
 
   const fetchDocumentData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/documents/${project_name}`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/documents/${project_name}`, {
         params: {
           is_personel_document: true
         }
@@ -410,7 +410,7 @@ const CertificateUploader: React.FC<CommonCertificateProps> = ({ contractorId, p
 
         if (fieldToUpdate) {
           const response = await axios.put(
-            `http://localhost:5000/api/documents/${project_name}/${docToUpdate._id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/documents/${project_name}/${docToUpdate._id}`,
             fieldToUpdate,
             {
               headers: {
@@ -430,7 +430,7 @@ const CertificateUploader: React.FC<CommonCertificateProps> = ({ contractorId, p
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/documents/${project_name}`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/documents/${project_name}`, {
           params: {
             is_personel_document: false,
           },
@@ -454,7 +454,7 @@ const CertificateUploader: React.FC<CommonCertificateProps> = ({ contractorId, p
     const docToDelete = fileData.documents[rowIndex];
 
     try {
-      const response = await axios.delete(`http://localhost:5000/api/documents/${project_name}/${docToDelete._id}`);
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/documents/${project_name}/${docToDelete._id}`);
 
       if (response.status === 200) {
         // Remove the deleted document from fileData

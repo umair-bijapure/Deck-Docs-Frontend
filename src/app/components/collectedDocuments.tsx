@@ -25,7 +25,7 @@ const CollectedDocuments: React.FC<{ userId: string }> = ({ userId }) => {
   useEffect(() => {
     const fetchDocumentData = async () => {
       try {
-        const response = await axios.get<FileData>(`http://localhost:5000/api/documents/${userId}`);
+        const response = await axios.get<FileData>(`${process.env.NEXT_PUBLIC_API_URL}/documents/${userId}`);
         const { data } = response;
         setFileData(data);
       } catch (error) {

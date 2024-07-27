@@ -80,7 +80,7 @@ const CommonAttendance: React.FC<AttendanceProps> = ({ employees }) => {
     try {
       for (const record of attendanceRecords) {
         const { phone_no, month, absences, leaves } = record;
-        await axios.put(`http://localhost:5000/api/user/${phone_no}/attendance`, {
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/${phone_no}/attendance`, {
           attendance: {
             [month]: { absences, leaves }
           }

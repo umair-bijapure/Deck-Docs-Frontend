@@ -438,7 +438,7 @@ const FolderStructure: React.FC<FolderStructureProps> = ({ parentFolderId,projec
   const fetchFoldersByIDs = async () => {
     try {
         if (recieved_folders?.length > 0) { // Check if recieved_folders is non-empty
-            const response = await axios.get('http://localhost:5000/api/folder/recievedFolders/foldersbyIds', {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/folder/recievedFolders/foldersbyIds`, {
                 params: { ids: recieved_folders } // Pass project IDs as query parameters
             });
             setFolders2(response.data);
@@ -459,7 +459,7 @@ useEffect(() => {
     folderId: string | null = activeFolder || (parentFolderId ? parentFolderId : null)
   ) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/folder/folder/${folderId || ''}`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${folderId || ''}`, {
         params: {
           projectId: project_name // Pass project_name as a query parameter
         }
@@ -480,7 +480,7 @@ useEffect(() => {
   }, [activeFolder]);
   const fetchChildFolders = async (folderId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/folder/children/${folderId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/folder/children/${folderId}`);
       setChildFolders(response.data);
     } catch (error) {
       console.error('Error fetching child folders:', error);
@@ -502,7 +502,7 @@ useEffect(() => {
     
     if (actualParentFolderId !== null) {
         try {
-            const response = await axios.post('http://localhost:5000/api/folder/create-folder', {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/create-folder`, {
                 folderName,
                 parentFolderId: actualParentFolderId,                                                                            
                 createdAt: formattedDateString, // Include the creation date and time
@@ -513,7 +513,7 @@ useEffect(() => {
         }
     } else {
         try {
-            const response = await axios.post('http://localhost:5000/api/folder/create-folder', {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/create-folder`, {
                 folderName,
                 projectId: project_name,
                 createdAt: formattedDateString, // Include the creation date and time
@@ -558,7 +558,7 @@ const handleNavigateToFolder = (index: number) => {
       try {
         const names = await Promise.all(
           folderHierarchy.map(async (folderId) => {
-            const response = await axios.get(`http://localhost:5000/api/folder/folder/${folderId}`);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${folderId}`);
             return response.data?.name || '';
           })
         );
@@ -584,7 +584,7 @@ const handleNavigateToFolder = (index: number) => {
 
   const handleSaveEdit = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/folder/folder/${editFolderId}/rename`, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${editFolderId}/rename`, {
         name: editedFolderName,
       });
       setEditFolderId(null);
@@ -598,7 +598,7 @@ const handleNavigateToFolder = (index: number) => {
   
   const handleSaveEditChild = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/folder/${editFolderId}/rename`, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/folder/${editFolderId}/rename`, {
         newName: editedFolderName,
       });
       setEditFolderId(null);
@@ -616,7 +616,7 @@ const handleNavigateToFolder = (index: number) => {
     // Fetch users from the backend
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/user');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/all/bypass`);
         setUsers(response.data); // Set the fetched users in state
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -624,7 +624,7 @@ const handleNavigateToFolder = (index: number) => {
     };
     const fetchContractorCompanies = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/contractor_company');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/organisation`);
         const contractorCompanies = response.data;
         setContractorCompanies(contractorCompanies); // Set the fetched contractor companies in state
       } catch (error) {
@@ -640,7 +640,7 @@ const handleNavigateToFolder = (index: number) => {
       
   const handleDeleteFolder = async (folderId:string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/folder/folder/${folderId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${folderId}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -665,7 +665,7 @@ const handleNavigateToFolder = (index: number) => {
     const handleRevokeAccess = async (folderId: string, userId: string) => {
       try {
         // Call API to revoke access for the specified user in the folder
-        await axios.put(`http://localhost:5000/api/folder/folder/${folderId}/revoke-access`, { userId });
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${folderId}/revoke-access`, { userId });
     
         // Update the local state to reflect the changes
         setPopupFolder((prevFolder: Folder | null) => {
@@ -700,7 +700,7 @@ const handleNavigateToFolder = (index: number) => {
     const handleGiveAccess = async (folderId: string, userIds: string[]) => {
       try {
         // Iterate over each user ID and give access to the folder
-        await Promise.all(userIds.map(userId => axios.put(`http://localhost:5000/api/folder/folder/${folderId}/give-access`, { userId,contractorId })));
+        await Promise.all(userIds.map(userId => axios.put(`${process.env.NEXT_PUBLIC_API_URL}/folder/folder/${folderId}/give-access`, { userId,contractorId })));
     
         // Update folder state after granting access
         setPopupFolder((prevFolder: Folder | null) => {

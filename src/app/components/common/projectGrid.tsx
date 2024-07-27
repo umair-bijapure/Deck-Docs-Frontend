@@ -166,7 +166,8 @@ export const CommonProject: React.FC<ProjectGridProps & { onUpdateProjects: () =
     // Fetch users from the backend
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/user');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/all/bypass`);
+        
         setUsers(response.data); // Set the fetched users in state
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -174,7 +175,7 @@ export const CommonProject: React.FC<ProjectGridProps & { onUpdateProjects: () =
     };
     const fetchContractorCompanies = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/organisation');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/organisation`);
         const contractorCompanies = response.data;
         setContractorCompanies(contractorCompanies); // Set the fetched contractor companies in state
       } catch (error) {
@@ -209,7 +210,7 @@ export const CommonProject: React.FC<ProjectGridProps & { onUpdateProjects: () =
 const handleRevokeAccess = async (projectId:string, userId:string) => {
   try {
     // Call the API to revoke access for the specified user in the project profile
-    await axios.put(`http://localhost:5000/api/project/${projectId}/revoke-access`, { userId });
+    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}/revoke-access`, { userId });
 
     // Update the local state to reflect the changes
     setPopupProjectProfile((prevProfile) => {
@@ -240,7 +241,7 @@ const handleRevokeAccess = async (projectId:string, userId:string) => {
 const handleGiveAccess = async (projectId:string, userIds:string[]) => {
   try {
     // Call the API to give access to the specified users in the project profile
-    await Promise.all(userIds.map((userId) => axios.put(`http://localhost:5000/api/project/${projectId}/give-access`, { userId, contractorId })));
+    await Promise.all(userIds.map((userId) => axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}/give-access`, { userId, contractorId })));
 
     // Update the local state to reflect the changes
     setPopupProjectProfile((prevProfile) => {
@@ -269,7 +270,7 @@ const handleGiveAccess = async (projectId:string, userIds:string[]) => {
 const handleDeleteProject = async (projectId:string) => {
   try {
       // Send a DELETE request to your backend API to delete the project
-      const response = await axios.delete(`http://localhost:5000/api/project/${projectId}`);
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`);
 
       // Check if the project was deleted successfully
       if (response.status === 200) {

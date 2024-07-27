@@ -20,7 +20,7 @@ interface FileData {
 }> = ({ folderContents, setFolderContents, folderId, setFolderId }) => {
   const navigateToFolder = async (folderId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/file/folders/${folderId}/files`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/file/folders/${folderId}/files`);
       setFolderContents(response.data);
       setFolderId(folderId);
     } catch (error) {

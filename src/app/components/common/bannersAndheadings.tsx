@@ -387,7 +387,7 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
         updatedData.profile_picture = profile.uploadedImage;
       }
 
-      const response = await axios.put(`http://localhost:5000/api/user/${phone_no}`, updatedData);
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/${phone_no}`, updatedData);
       console.log('Updated successfully:', response.data);
       // window.location.reload();
     } catch (error) {
@@ -453,7 +453,7 @@ const remainingFields = inputFields.slice(8);
   const ratingsArray = Array.isArray(ratings) ? ratings : ratings ? [ratings] : [];
   const fetchDocumentData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/documents/${phone_no}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/documents/${phone_no}`);
   
       // Assuming the response data structure matches the MongoDB document structure
       const { data } = response;
@@ -1036,7 +1036,7 @@ export const ContractorProfile: React.FC<ContractorProfileProps> = ({
         updatedData.profile_picture = profile.uploadedImage;
       }
 
-      const response = await axios.put(`http://localhost:5000/api/contractor_company/${phone_no}`, updatedData);
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/organisation/${phone_no}`, updatedData);
       console.log('Updated successfully:', response.data);
       // window.location.reload();
     } catch (error) {

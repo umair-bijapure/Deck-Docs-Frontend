@@ -659,7 +659,7 @@ const CreateReport= (props: any): JSX.Element => {
       };
 
       // Make a POST request to the backend
-      const response = await axios.post('http://localhost:5000/api/reports/create-report', reportData);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reports/create-report`, reportData);
 
       setMessage(`Report submitted successfully`);
       setAlertType('success');
@@ -709,7 +709,7 @@ const CreateReport= (props: any): JSX.Element => {
       };
 
       // Make a POST request to the backend
-      const response = await axios.post(`http://localhost:5000/api/reports/update/report/${report_id}`, reportData);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reports/update/report/${report_id}`, reportData);
 
       setMessage(`Report Updated successfully`);
       setAlertType('success');
@@ -725,7 +725,7 @@ const CreateReport= (props: any): JSX.Element => {
    
     try {
 
-        const response = await axios.get(`http://localhost:5000/api/reports/get/report/${report_id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reports/get/report/${report_id}`);
         const fetchedData = response.data; 
         console.warn(fetchedData,"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
         setTableData(fetchedData.report.tables[0].entries);

@@ -27,8 +27,8 @@ interface FolderContents {
 
 const fetchFolderContents = async (folderId: string, parentFolderId: string | null = null): Promise<FolderContents> => {
   try {
-    const files = await axios.get(`http://localhost:5000/api/file/folders/${folderId}/files`);
-    const childFolders = await axios.get(`http://localhost:5000/api/folder/${folderId}/child-folders`);
+    const files = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/file/folders/${folderId}/files`);
+    const childFolders = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/folder/${folderId}/child-folders`);
     
     // Ensure to handle responses from your API correctly and extract data as needed
     const folderData: FolderContents = {
@@ -84,7 +84,7 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ folderId, refreshData,i
   // Function to fetch all documents within a folder
   const fetchFolderContents = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/file/folders/${folderId}/files`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/file/folders/${folderId}/files`);
       setFolderContents(response.data);
     } catch (error) {
       console.error('Error fetching folder contents:', error);
@@ -116,7 +116,7 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ folderId, refreshData,i
               };
         
               // Save file metadata to the backend
-              await axios.post(`http://localhost:5000/api/file/${folderId}`, fileData);
+              await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/file/${folderId}`, fileData);
         
               // Show image preview
               const reader = new FileReader();

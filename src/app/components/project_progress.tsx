@@ -55,7 +55,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectId, progress: 
   // Fetch tasks from the database
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/task`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/task`);
       const tasksData: Task[] = response.data; // Assuming Task is the type of your task data
       setTasks(tasksData);
     } catch (error) {
@@ -69,7 +69,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectId, progress: 
 
   const updateProjectProgress = async (updatedProgress: Progress[]) => {
     try {
-      await axios.put(`http://localhost:5000/api/project/${projectId}`, { progress: updatedProgress });
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`, { progress: updatedProgress });
       console.log('Project progress updated successfully.');
       setProgress(updatedProgress);
     } catch (error) {
@@ -88,7 +88,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectId, progress: 
   
     try {
       // Add the new task to the server
-      const response = await axios.post(`http://localhost:5000/api/project/${listId}/lists/${projectId}/tasks`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/project/${listId}/lists/${projectId}/tasks`, {
         title: newTaskTitle, // Ensure that newTaskTitle is not empty
       });
     
@@ -143,7 +143,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectId, progress: 
 const updateTask = async (updatedTask: Task, listId: string) => {
   try {
       // Update the task within the project on the server
-      await axios.put(`http://localhost:5000/api/project/${projectId}/lists/${listId}/tasks/${updatedTask._id}`, updatedTask);
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}/lists/${listId}/tasks/${updatedTask._id}`, updatedTask);
       console.log('Task updated successfully.');
   } catch (error) {
       console.error('Error updating task:', error);
@@ -166,7 +166,7 @@ const updateTask = async (updatedTask: Task, listId: string) => {
         };
   
         // Send a POST request to the server to add the custom list
-        const response = await axios.post(`http://localhost:5000/api/project/${projectId}/customLists`, newList);
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}/customLists`, newList);
   
         // If the request is successful, update the local state with the updated progress
         const updatedProgress = [...progress, response.data];
@@ -185,7 +185,7 @@ const updateTask = async (updatedTask: Task, listId: string) => {
     try {
       // Assuming you have a modal for editing tasks and it updates the task data
       // After the task is edited, send a PUT request to update the task on the server
-      await axios.put(`http://localhost:5000/api/task/${task._id}`, task);
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/task/${task._id}`, task);
       console.log('Task updated successfully.');
     } catch (error) {
       console.error('Error updating task:', error);
@@ -197,7 +197,7 @@ const updateTask = async (updatedTask: Task, listId: string) => {
 
     try {
       // Send a DELETE request to remove the task from the server
-      await axios.delete(`http://localhost:5000/api/task/${task._id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/task/${task._id}`);
       console.log('Task deleted successfully.');
 
       // After deletion, update the local state to remove the deleted task

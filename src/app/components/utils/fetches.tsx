@@ -92,7 +92,7 @@ export const getUserPermissions = async (): Promise<Permissions> => {
 
 export async function fetchUsers(contractorId: string, controller?: AbortController | null) {
   return standardFetch({
-    url: `http://localhost:5000/api/user/`,
+    url: `${process.env.NEXT_PUBLIC_API_URL}/user/`,
     controller: controller ?? null,
     contentType: "application/json",
   });
@@ -108,7 +108,7 @@ export async function fetchFiles(contractorId:any, controller = null) {
 }
 
 export function fetchSiteUsers() {
-  return noAuthFetch(`http://localhost:5000/api/user/`)
+  return noAuthFetch(`${process.env.NEXT_PUBLIC_API_URL}/user/`)
 }
 
 async function noAuthFetch(url:string) {
@@ -138,7 +138,7 @@ export async function fetchOrganisations(organisationId: string, controller: Abo
 }
 export const fetchContractorData = async (contractorId: string, field: string) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/organisation/${field}/${contractorId}`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/organisation/${field}/${contractorId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching contractor data:", error);
@@ -245,7 +245,7 @@ export async function standardFetch<T>(input: StandardFetchInput): Promise<T> {
 
 export const createOrUpdateNotification = async (notificationData: any) => {
   try {
-      const response = await axios.post('http://localhost:5000/api/notifications', notificationData);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notifications`, notificationData);
       return response.data;
   } catch (error: any) {
       console.error("Error creating or updating notification:", error);
@@ -256,7 +256,7 @@ export const createOrUpdateNotification = async (notificationData: any) => {
 export async function fetchCreateProject( body:any, controller = null) {
   console.log("llllllllllllllllllllllllllllllllllllllllllllllllllllll")
   return standardFetch({
-    url: `http://localhost:5000/api/project/create-project`,
+    url: `${process.env.NEXT_PUBLIC_API_URL}/project/create-project`,
     method: "POST",
     body: body,
     controller: controller,
@@ -320,7 +320,7 @@ export const handleUpload = async (
     } as unknown as React.ChangeEvent<HTMLInputElement>;
     handleImageUpload(syntheticEvent, side);
 
-    const res = await axios.post('http://127.0.0.1:5000/api/fileUploader/fileUploader', formData);
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/fileUploader`, formData);
 
     if (res.status === 200) {
       const data = res.data;

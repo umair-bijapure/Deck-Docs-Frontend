@@ -53,7 +53,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   };
   const handleExtractText = async (file: { file: File; filename: string; url?: string; id?: number })  => {
     try {
-        const response = await fetch('http://localhost:5000/api/extract-text', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/extract-text`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -358,7 +358,7 @@ export const FileUploadertest = () => {
       formData.append('fileType', selectedFile.type);
       formData.append('file', selectedFile);
 
-      const res = await fetch('http://127.0.0.1:5000/api/fileUploader/fileUploader' , {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/fileUploader` , {
         method: 'POST',
         body: formData,
       });

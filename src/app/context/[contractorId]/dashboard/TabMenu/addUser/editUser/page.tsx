@@ -54,7 +54,7 @@ const UserProfile = (props: any): JSX.Element => {
 
   const handleSubmit = async (updatedData: any) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/user/${userData.phone_no}`, updatedData);
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/${userData.phone_no}`, updatedData);
       console.log('Updated successfully:', response.data);
       // Optionally reload or update state after successful update
     } catch (error) {

@@ -155,7 +155,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
   
     const handleSubmit = async () => {
       try {
-        const response = await axios.post('http://localhost:5000/api/documents/create-document', formValues);
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/documents/create-document`, formValues);
         console.log('Response from the server:', response.data);
         // Handle success response
       } catch (error:any) {
@@ -295,7 +295,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
       } as unknown as React.ChangeEvent<HTMLInputElement>;
       handleImageUpload(syntheticEvent,'front');
 
-      const res = await fetch('http://127.0.0.1:5000/api/fileUploader/fileUploader', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/fileUploader`, {
         method: 'POST',
         body: formData,
       });
@@ -340,7 +340,7 @@ const CommonDocumentList: React.FC<CommonDocumentListProps> = ({
       } as unknown as React.ChangeEvent<HTMLInputElement>;
       handleImageUpload(syntheticEvent,'back');
 
-      const res = await fetch('http://127.0.0.1:5000/api/fileUploader/fileUploader', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fileUploader/fileUploader`, {
         method: 'POST',
         body: formData,
       });

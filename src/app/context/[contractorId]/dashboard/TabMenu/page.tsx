@@ -43,7 +43,7 @@ const DashboardPage = (props: any): JSX.Element => {
 
   const [profile_data, setProfileData] = useState<any>([]);
   const getUserData = async() => {
-    const response = await axios.get(`http://localhost:5000/api/user/singleuser/${username}`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/singleuser/${username}`);
     setProfileData(response.data);
   
   }
@@ -61,7 +61,7 @@ const DashboardPage = (props: any): JSX.Element => {
   const handleEmployeeAdded = async (id:string) => {
    
  
-    const response = await axios.get(`http://localhost:5000/api/user/${id}`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`);
     const respData = response.data;
     setEmployees((prevData:any)=>[...prevData,...respData])
     // getData(); // Fetch the updated employee list

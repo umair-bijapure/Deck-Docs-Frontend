@@ -209,7 +209,7 @@ export const CommonProfile: React.FC<CommonProfileProps> = ({
 
 
 
-      const response = await axios.put(`http://localhost:5000/api/user/${phone_no}`, updatedData);
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/${phone_no}`, updatedData);
       setShowLoader(false);
       // window.location.reload();
     } catch (error) {

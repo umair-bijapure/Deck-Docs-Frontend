@@ -95,7 +95,7 @@ interface AddProjectProps {
   };
   const fetchContractorCompanies = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/organisation');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/organisation`);
       const contractorCompanies = response.data;
       setContractorCompanies(contractorCompanies); // Set the fetched contractor companies in state
     } catch (error) {
