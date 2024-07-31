@@ -66,7 +66,7 @@ const LoginPage = (props: any): JSX.Element => {
   
       setErrorMessage("");
   
-      let response = await axios.post('http://localhost:5000/api/auth/login', body, {
+      let response = await axios.post('http://13.201.21.16:5000/api/auth/login', body, {
         headers: {
           'Content-Type': 'application/json'
         }
