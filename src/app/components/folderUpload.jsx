@@ -78,25 +78,52 @@ const getFolderContents = async (folderHandle, parentFolderName = null) => {
   return files;
 };
 
-const handleFolderSelect = async () => {
+const handleFolderSelect = async (setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents) => {
   try {
-    const folderHandle = await window.showDirectoryPicker();
+    if (window.showDirectoryPicker) {
+      const folderHandle = await window.showDirectoryPicker();
+      setProcessingProgress(1);
+      setQueue((prevQueue) => ({
+        ...prevQueue,
+        [folderHandle.name]: {
+          parentFolderName: "",
+          objectId: null,
+          parentFolderId: null,
+        },
+      }));
+      setCount(1); // Start the count
+      const folderContents = await getFolderContents(folderHandle, folderHandle.name);
+      folderContents.unshift(folderHandle);
+      setSelectedFolder(folderHandle);
+      setFolderContents(folderContents);
+      setCount(0);
+    } else {
+      document.getElementById('folderInput').click();
+    }
+  } catch (error) {
+    console.error("Error selecting folder:", error);
+  }
+};
+
+const handleFolderInput = async (event, setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents) => {
+  try {
+    const files = event.target.files;
+    if (files.length === 0) return;
+
+    const folderName = files[0].webkitRelativePath.split('/')[0];
     setProcessingProgress(1);
     setQueue((prevQueue) => ({
       ...prevQueue,
-      [folderHandle.name]: {
+      [folderName]: {
         parentFolderName: "",
         objectId: null,
         parentFolderId: null,
       },
     }));
     setCount(1); // Start the count
-    const folderContents = await getFolderContents(folderHandle, folderHandle.name);
-    folderContents.unshift(folderHandle);
-    setSelectedFolder(folderHandle);
-  
+    const folderContents = Array.from(files);
+    setSelectedFolder({ name: folderName });
     setFolderContents(folderContents);
-    
     setCount(0);
   } catch (error) {
     console.error("Error selecting folder:", error);
@@ -311,7 +338,7 @@ const handleFileUpload = async (file,folderId,awsLink,filename,size,type) => {
 
   // Simulate file upload progress for demonstration purposes
 
-
+  const fileInputRef = useRef();
   return (
     <div className="no-scrollbar flex flex-col p-4 w-[25vw] h-full bg-white shadow-lg fixed top-0 left-0 z-30 transition-transform duration-800 ease-in-out">
       <div className='flex justify-end'>
@@ -335,13 +362,23 @@ const handleFileUpload = async (file,folderId,awsLink,filename,size,type) => {
       </div>
         <div className='flex flex-col items-center'>
           {!selectedFolder &&
-      <div
-        onClick={handleFolderSelect}
-        className="flex items-center justify-center gap-x-2 p-4 border-2 border-dashed border-gray-300 cursor-pointer rounded-md "
-      >
-        <FaFolder size={24} className='text-[color:var(--primaryColor)]' />
-        <p className="text-lg font-semibold text-[color:var(--mainTitleLightColor)]">Upload Folder</p>
-      </div>
+    <div>
+    <div
+      onClick={() => handleFolderSelect(setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents)}
+      className="flex items-center justify-center gap-x-2 p-4 border-2 border-dashed border-gray-300 cursor-pointer rounded-md "
+    >
+      <FaFolder size={24} className="text-[color:var(--primaryColor)]" />
+      <p className="text-lg font-semibold text-[color:var(--mainTitleLightColor)]">Upload Foldeeer</p>
+    </div>
+    <input
+      id="folderInput"
+      ref={fileInputRef}
+      type="file"
+      webkitdirectory="true"
+      style={{ display: 'none' }}
+      onChange={(event) => handleFolderInput(event, setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents)}
+    />
+  </div>
 }
 
       </div>
