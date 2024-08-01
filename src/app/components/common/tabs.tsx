@@ -324,7 +324,7 @@ const availableTabs: Tab[] = [
   { 
     name: 'My Documents', 
     permission: 'ViewMyDocuments', 
-    content: <ProjectDocuments project_name={profile_data.pro_team_id} contractorId={username} recieved_folders={profile_data?.recieved_folders} />, 
+    content: <ProjectDocuments project_name={'General'} contractorId={username} recieved_folders={profile_data?.recieved_folders} />, 
     icon:  <FaFolder/>
   },
   { 
