@@ -116,10 +116,16 @@ const CreateOrganisationForm = (props: any): JSX.Element => {
 
   return (
     <>
-          <div className=" text-[18px] gap-x-2 m-2 p-2 text-gray-700 hover:from-green-500 hover:to-green-400 hover:ring-2 hover:ring-offset-2 hover:ring-gray-200 transition-all ease-out duration-300 cursor-pointer" onClick={onClick}>
-        <FaArrowLeft />
-        <h1 className="text-lg">Back</h1>
-      </div>
+
+      <div className="flex justify-between items-center">
+    
+    <div className="flex items-center justify-center text-[18px] gap-x-2 m-2 p-2 text-gray-700 hover:from-green-500 hover:to-green-400 hover:ring-2 hover:ring-offset-2 hover:ring-gray-200 transition-all ease-out duration-300 cursor-pointer" onClick={onClick}>
+      <FaArrowLeft />
+      <h1 className="text-lg">Back </h1>
+    </div>
+   
+    <div className="text-lg">Add Employee </div>
+  </div>
   
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
             {showLoader && (

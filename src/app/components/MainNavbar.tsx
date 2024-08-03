@@ -118,8 +118,8 @@ const MainNavbar: React.FC<{ contractorId: string, onLoginClick: () => void, onR
               </>
             ) : (
               <>
-              <p>sdvsdv</p>
-                {/* <button
+             
+                <button
                   onClick={handleLogout}
                   className="flex items-center hover:bg-red-200 justify-center gap-x-2 text-red-500 bg-red-100 p-2 pl-10 pr-10 rounded-xl font-semibold hover:scale-110 duration-100"
                 >
@@ -130,7 +130,7 @@ const MainNavbar: React.FC<{ contractorId: string, onLoginClick: () => void, onR
                   className="flex items-center hover:bg-red-200 justify-center gap-x-2 text-red-500 bg-red-100 p-2 pl-10 pr-10 rounded-xl font-semibold hover:scale-110 duration-100"
                 >
                   Dashboard <AiOutlineLogout />
-                </button> */}
+                </button>
               </>
             )}
           </div>

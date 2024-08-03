@@ -245,29 +245,9 @@ const handleInputChange = (newValue: string) => {
         console.error('Error deleting notification:', error);
       }
     };
-// Example usage to fetch sub_contractors array for a specific contractor
-const fetchSubContractors = async (username: string) => {
-  try {
-    const subContractors = fetchContractorData(username, 'connection_organisations');
-    console.log("Sub Contractors:", subContractors);
-    return subContractors;
-  } catch (error) {
-    console.error("Error fetching sub contractors:", error);
-    throw error;
-  }
-};
 
-// Example usage to fetch clients array for a specific contractor
-const fetchClients = async (username: string) => {
-  try {
-    const clients =  fetchContractorData(username, 'clients');
-    console.log("Clients:", clients);
-    return clients;
-  } catch (error) {
-    console.error("Error fetching clients:", error);
-    throw error;
-  }
-};
+
+
 const handleLogout = () => {
   logOutUser();
   router.push("/");
@@ -384,8 +364,10 @@ if (!tabs.find(tab => tab.name === '')) {
     permission: '',
     content: <></>, // Empty React Element
     icon: (
-      <button onClick={handleLogout} className="flex items-center hover:bg-red-200 justify-center gap-x-2 text-red-500 bg-red-100 p-2 pl-10 pr-10 rounded-xl font-semibold hover:scale-110 duration-100">
-        Logout<AiOutlineLogout />
+      <button onClick={handleLogout} className="flex items-center hover:bg-red-200 justify-center gap-x-2 text-red-500 sm:pl-10 sm:pr-10 rounded-xl font-semibold hover:scale-110 duration-100">
+        
+        <p className='hidden sm:flex'>Logout</p>
+        <AiOutlineLogout />
       </button>
     ),
   });
@@ -400,11 +382,11 @@ return (
             <CommonSpinner/>
       </div> : <></>}
 
-      <div className="flex justify-center">
+      <div className="sm:flex justify-center">
       <div className="grid grid-cols-6 gap-x-2">
         <div className="col-span-1 flex-col w-auto relative ">
 
-          <div className="inline-block flex justify-center bg-white  py-2 m-1">
+          <div className="inline-block hidden sm:flex justify-center bg-white py-2 m-1">
             <Popover content={
               <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
                 <NotificationsList notifications={notifications} onDelete={handleDeleteNotification} />
@@ -440,11 +422,11 @@ return (
             </Popover>
 
           </div> 
-          <div className="tab-button-container flex flex-col w-60 h-full bg-white p-4 shadow-lg">
+          <div className="hidden tab-button-container sm:flex flex-col w-60 h-full bg-white p-2 shadow-lg">
             {tabs.map((tab, index) => (
               <button
                 key={index}
-                className={`w-full h-16 flex items-center justify-start px-4 ${
+                className={`w-full h-16 flex items-center justify-start px-2 ${
                   index === activeTab
                     ? 'bg-[color:var(--primaryColor)] text-white text-lg shadow-md font-bold'
                     : 'bg-[color:var(--mainTitleLightestColor)] text-[color:var(--mainTitleLightColor)] hover:bg-blue-100 hover:text-black'
@@ -458,6 +440,45 @@ return (
               </button>
             ))}
           </div>
+          <div className="sm:hidden sm:p-2 bg-white border-[color:var(--lightBackgroundGreyColor)] border-t-2 shadow-t-lg fixed bottom-0 w-full z-30 sm:rounded-lg">
+  <div className="flex justify-evenly z-30 relative">
+    {tabs.slice(0, tabs.length - 3).map((tab, index) => (
+      <button
+        key={index}
+        className={`w-full h-10 flex items-center justify-center ${
+          index === activeTab
+            ? 'bg-[color:var(--primaryColor)] text-white text-lg shadow-md font-bold'
+            : 'bg-[color:var(--mainTitleLightestColor)] text-[color:var(--mainTitleLightColor)] hover:bg-blue-100 hover:text-black'
+        } transition-all duration-300 ease-in-out  `}
+        onClick={() => handleTabClick(index, tab.name)}
+      >
+        <div className="flex flex-col items-center">
+          <div>{tab.icon}</div>
+          <div className="hidden sm:flex text-left">{tab.name}</div>
+        </div>
+      </button>
+    ))}
+    <div className="absolute bottom-10 right-0 flex flex-col items-end gap-2">
+      {tabs.slice(tabs.length - 3).map((tab, index) => (
+        <button
+          key={tabs.length - 3 + index}
+          className={`p-2 gap-x-1 m-2 h-10 flex items-center justify-center ${
+            tabs.length - 3 + index === activeTab
+              ? 'bg-[color:var(--primaryColor)] text-white text-lg shadow-md font-bold'
+              : 'bg-[color:var(--mainTitleLightestColor)] text-[color:var(--mainTitleLightColor)] hover:bg-blue-100 hover:text-black'
+          } transition-all duration-300 ease-in-out rounded-lg `}
+          onClick={() => handleTabClick(tabs.length - 3 + index, tab.name)}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <div>{tab.icon}</div>
+            <div className="hidden sm:flex text-left">{tab.name}</div>
+          </div>
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
 
         </div>
         <div className="col-span-5 bg-white overflow-y-scroll no-scrollbar rounded-lg">{tabs[activeTab]?.content}</div>
@@ -472,6 +493,3 @@ return (
 
   export default CommonTabs;
 
-function fetchContractorData(username: string, arg1: string) {
-  throw new Error('Function not implemented.');
-}

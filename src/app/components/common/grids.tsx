@@ -563,8 +563,6 @@ const users = [...allusers, ...contractorCompanies];
           phone_no={selectedProfileData.phone_no}
           country={selectedProfileData.parmanent_country}
           email={selectedProfileData.email}
-
-
           createdAt={selectedProfileData.createdAt}
           
           address={selectedProfileData.current_address}
@@ -785,7 +783,8 @@ const users = [...allusers, ...contractorCompanies];
                 trigger={'click'}>
               <div className="col-span-1 relative m-2">
                 <div className="relative hover:scale-110 duration-300">
-                  {item.profile_picture !== '' ? (
+                  {item.profile_picture !== ''? (
+                    profileType=="employee" ?
                     <img 
                       className='mx-auto aspect-square rounded-full border-2 p-1' 
                       style={{ borderColor: getBorderColor(calculateCompletionPercentage(profileCompletions.find(profile => profile?.phoneNo === item.phone_no), item)) }} 
@@ -793,15 +792,32 @@ const users = [...allusers, ...contractorCompanies];
                       height={60} 
                       src={item.profile_picture} 
                       alt={'Pic'} 
-                    />
+                    />:
+                    <img 
+                    className='mx-auto aspect-square rounded-full border-2 p-1' 
+                    width={60}  
+                    height={60} 
+                    src={item.profile_picture} 
+                    alt={'Pic'} 
+                  />
+                    
+
                   ) : (
+                    profileType=="employee" ?
                     <img 
                       className='mx-auto aspect-square rounded-full border-2 p-1' 
                       style={{ borderColor: getBorderColor(calculateCompletionPercentage(profileCompletions.find(profile => profile?.phoneNo === item.phone_no), item)) }} 
                       src={`${profileType === 'employee' ? '/default-user-profile.png' : '/engineer 1.png'}`} 
                       alt={'Default Pic'} 
-                    /> 
+                    /> :
+                    <img 
+                    className='mx-auto aspect-square rounded-full border-2 p-1' 
+                    src={`${profileType === 'employee' ? '/default-user-profile.png' : '/engineer 1.png'}`} 
+                    alt={'Default Pic'} 
+                  /> 
+                    
                   )}
+                  {profileType=="employee" &&
                   <div 
                     className="absolute bg-white rounded-lg p-1 bg-opacity-90 -bottom-1.5 left-1/2 transform -translate-x-1/2 text-[8px] flex items-center justify-center font-bold"
                   >
@@ -824,7 +840,7 @@ const users = [...allusers, ...contractorCompanies];
                         0%
                       </div>
                     )}
-                  </div>
+                  </div>}
                 </div>
               </div>
 

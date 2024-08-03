@@ -59,7 +59,7 @@ const SubContractor: React.FC<ContractorsTabProps> = ({ contractorId,  onEmploye
      {showForm &&
       (
       // <RegisterContractor profileType='contractor_company' contractorId={contractorId} onEmployeeAdded={(id: string) => onEmployeeAdded(id)} onClick={() => setShowForm(false)} />
-      <CreateOrganisationForm parentOrganisationId={contractorId} />
+      <CreateOrganisationForm parentOrganisationId={contractorId} onClick={() => setShowForm(false)} />
       )}
             {showOrganisationUserForm && (<CreateOrganisationUser profileType='employee' contractorId={contractorId} onEmployeeAdded={fetchSubContractors} onClick={() => setShowOrganisationUserForm(false)} />)}
 
@@ -69,7 +69,7 @@ const SubContractor: React.FC<ContractorsTabProps> = ({ contractorId,  onEmploye
           <div>         
         <div className='pl-4 pr-4 flex justify-between items-center bg-[color:var(--lightBackgroundGreyColor)] rounded-t-2xl'>
             
-            <CommonSectionTitle title="ALL SUB CONTRATORS" titleColor={""} fontSize={""}/>
+            <CommonSectionTitle title="All Subcontractors/ Organisarions" titleColor={""} fontSize={""}/>
             <div className='p-2' onClick={() => setShowForm(true)}>
                 <CommonAddButton
                   icon={faPersonBooth}

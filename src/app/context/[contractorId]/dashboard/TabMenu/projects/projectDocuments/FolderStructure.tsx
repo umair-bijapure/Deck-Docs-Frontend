@@ -786,10 +786,10 @@ const handleNavigateToFolder = (index: number) => {
               <td  className={`relative shadow-md p-2 rounded-md h-auto  ${recieved_folders?.includes(folder._id ?? '') ? 'bg-yellow-50 rounded-t-xl' : 'bg-white'}`}>
 
                 <div className="flex flex-col items-center justify-center gap-x-2 cursor-pointer hover:-translate-y-1 hover:scale-110 duration-300 cursor-pointer " onClick={() => handleFolderClick(folder._id, folder.name, folder,index)}>
-                  <div className={`text-[color:var(--primaryColor)] opacity-40 text-[100px]`}>
+                  <div className={`text-[color:var(--primaryColor)] opacity-80 text-[100px]`}>
                     <FaFolder/>
                   </div>
-                  <h1 className='text-lg font-semibold w-[100px] truncate'>{folder.name}</h1>
+                  <h1 className='text-lg font-semibold w-[100px] text-[color:var(--mainTitleLightColor)] truncate'>{folder.name}</h1>
                 </div>
 
                 <div className='text-[color:var(--lightGrayFontColor)] text-sm p-2'>
@@ -826,7 +826,8 @@ const handleNavigateToFolder = (index: number) => {
                           </div>}
                 </div>
                                                         } trigger="click">
-                                                        <EllipsisOutlined />
+                                                          <p className='text-[color:var(--mainTitleLightColor)] text-2xl font-bold'>
+                                                        <EllipsisOutlined /></p>
                                   </Popover>
                                   </div>
                                   </div>

@@ -115,29 +115,29 @@ const CommonAttendance: React.FC<AttendanceProps> = ({ employees }) => {
             </div>
     <div className="flex flex-wrap gap-4 mt-10">
       {attendanceRecords.map((record) => (
-        <div key={record.phone_no} className="mb-2 p-2 border rounded-lg flex flex-col items-center items-center shadow-md transition transform hover:-translate-y-1 hover:shadow-lg">
+        <div key={record.phone_no} className="mb-2 p-2 rounded-lg flex flex-col items-center items-center border-2 transition transform hover:-translate-y-1 hover:shadow-lg">
           <img
             src={employees.find(emp => emp._id === record.phone_no)?.profile_picture || '/default-user-profile.png'}
             alt={`${employees.find(emp => emp._id === record.phone_no)?.first_name}`}
             className="rounded-full mb-2 w-12 h-12 object-cover"
           />
-          <span className="text-lg font-medium truncate w-36 align-middle">{employees.find(emp => emp._id === record.phone_no)?.first_name} {employees.find(emp => emp._id === record.phone_no)?.last_name}</span>
+          <span className="text-md text-[color:var(--mainTitleLightColor)] font-medium truncate align-middle">{employees.find(emp => emp._id === record.phone_no)?.first_name} {employees.find(emp => emp._id === record.phone_no)?.last_name}</span>
           <div className="flex space-x-2 mt-2">
             <button
               onClick={() => handleMarkAttendance(record.phone_no, currentDay, 'P')}
-              className={`p-1 px-2 rounded-full ${record.status === 'P' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
+              className={`p-3 flex items-center justify-center w-10 h-10 hover:bg-gray-300 rounded-full ${record.status === 'P' ? 'bg-green-500 text-white font-bold' : 'bg-gray-200 text-[color:var(--mainTitleLightColor)]'}`}
             >
               P
             </button>
             <button
               onClick={() => handleMarkAttendance(record.phone_no, currentDay, 'A')}
-              className={`p-1 px-2 rounded-full ${record.status === 'A' ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
+              className={`p-3 flex items-center justify-center w-10 h-10 hover:bg-[color:var(--lightBackgroundColor)] hover:text-white rounded-full ${record.status === 'A' ? 'bg-red-500 text-white font-bold' : 'bg-gray-200 text-[color:var(--mainTitleLightColor)]'}`}
             >
               A
             </button>
             <button
               onClick={() => handleMarkAttendance(record.phone_no, currentDay, 'L')}
-              className={`p-1 px-2 rounded ${record.status === 'L' ? 'bg-yellow-500 text-white' : 'bg-gray-200'}`}
+              className={`p-3 flex items-center justify-center w-10 h-10 rounded-full  ${record.status === 'L' ? 'bg-[color:var(--primaryColor)] text-white font-bold' : 'bg-gray-200 text-[color:var(--mainTitleLightColor)]'}`}
             >
               L
             </button>

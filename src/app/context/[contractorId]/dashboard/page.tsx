@@ -71,7 +71,7 @@ useEffect(()=>{
   return (
     
     <div className=' z-10 sm:bg-none bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 '>
-        <div className='hidden sm:flex vsm:mx-auto bsm:bg-none sm:justify-center z-10'> 
+        <div className=' z-10'> 
           {/* <CommonTabs
             tabs={gridItems}  
             contractorId={contractorId}

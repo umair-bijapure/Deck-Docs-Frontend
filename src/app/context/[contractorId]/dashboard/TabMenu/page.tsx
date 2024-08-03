@@ -95,15 +95,14 @@ const DashboardPage = (props: any): JSX.Element => {
 
   
     return (
-        <>
+      
         <div className="z-10 ">
-          <div className="hidden sm:flex flex-col justify-center  align-middle  overflow-y-auto items-stretch w-full no-scrollbar  ">
+        
             <CommonTabs username={username}  organisationId={organisationId}  profile_data={profile_data} userType={"contractor"} />
           </div>
 
 
-        </div>
-        </>
+   
     )
   }
 
