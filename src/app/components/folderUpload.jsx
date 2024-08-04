@@ -78,10 +78,37 @@ const getFolderContents = async (folderHandle, parentFolderName = null) => {
   return files;
 };
 
+// const handleFolderSelect = async (setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents) => {
+//   try {
+//     if (window.showDirectoryPicker) {
+//       const folderHandle = await window.showDirectoryPicker();
+//       setProcessingProgress(1);
+//       setQueue((prevQueue) => ({
+//         ...prevQueue,
+//         [folderHandle.name]: {
+//           parentFolderName: "",
+//           objectId: null,
+//           parentFolderId: null,
+//         },
+//       }));
+//       setCount(1); // Start the count
+//       console.warn(folderHandle, folderHandle.name,"HHHHHHHHHHHHBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+//       const folderContents = await getFolderContents(folderHandle, folderHandle.name);
+//       folderContents.unshift(folderHandle);
+//       setSelectedFolder(folderHandle);
+//       setFolderContents(folderContents);
+//       setCount(0);
+//     } else {
+//       document.getElementById('folderInput').click();
+//     }
+//   } catch (error) {
+//     console.error("Error selecting folder:", error);
+//   }
+// };
+
 const handleFolderSelect = async (setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents) => {
   try {
-    if (window.showDirectoryPicker) {
-      const folderHandle = await window.showDirectoryPicker();
+    const processFolder = async (folderHandle) => {
       setProcessingProgress(1);
       setQueue((prevQueue) => ({
         ...prevQueue,
@@ -92,18 +119,37 @@ const handleFolderSelect = async (setProcessingProgress, setQueue, setCount, get
         },
       }));
       setCount(1); // Start the count
+
+      console.warn(folderHandle, folderHandle.name, "Processing folder");
+
       const folderContents = await getFolderContents(folderHandle, folderHandle.name);
       folderContents.unshift(folderHandle);
       setSelectedFolder(folderHandle);
       setFolderContents(folderContents);
       setCount(0);
+    };
+
+    if (window.showDirectoryPicker) {
+      const folderHandle = await window.showDirectoryPicker();
+      await processFolder(folderHandle);
     } else {
-      document.getElementById('folderInput').click();
+      const input = document.getElementById('folderInput');
+      input.addEventListener('change', async (event) => {
+        const files = event.target.files;
+        if (files.length > 0) {
+          const folderName = files[0].webkitRelativePath.split('/')[0]; // Basic example, adjust as needed
+
+          const folderHandle = { name: folderName }; // Mock folderHandle
+          await processFolder(folderHandle);
+        }
+      });
+      input.click(); // Trigger the file input click event
     }
   } catch (error) {
     console.error("Error selecting folder:", error);
   }
 };
+
 
 const handleFolderInput = async (event, setProcessingProgress, setQueue, setCount, getFolderContents, setSelectedFolder, setFolderContents) => {
   try {
@@ -111,6 +157,7 @@ const handleFolderInput = async (event, setProcessingProgress, setQueue, setCoun
     if (files.length === 0) return;
 
     const folderName = files[0].webkitRelativePath.split('/')[0];
+    console.warn(folderName,"setting queue in handleFolderInput JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJGGGGGGGGGGGGGGGGGGGg")
     setProcessingProgress(1);
     setQueue((prevQueue) => ({
       ...prevQueue,
@@ -130,45 +177,6 @@ const handleFolderInput = async (event, setProcessingProgress, setQueue, setCoun
   }
 };
 
-
-
-
-// const handleFolderSelect = async () => {
-//   try {
-//     const folderHandle = await window.showDirectoryPicker();
-    
-//     // Initialize processing progress to a small value
-//     setProcessingProgress(1);
-
-//     // Update queue state for the selected folder
-//     setQueue((prevQueue) => ({
-//       ...prevQueue,
-//       [folderHandle.name]: {
-//         parentFolderName: "",
-//         objectId: null,
-//         parentFolderId: null,
-//       },
-//     }));
-
-//     // Set the count to 1 since we have selected a folder
-//     setCount(1);
-
-//     // Get folder contents recursively
-//     const folderContents = await getFolderContents(folderHandle, folderHandle.name);
-
-//     // Include the parent folder itself in the folder contents
-//     folderContents.unshift(folderHandle);
-
-//     // Update states
-//     setSelectedFolder(folderHandle);
-//     setFolderContents(folderContents);
-
-//     // Set processing progress to 100% when folder processing is complete
-//     setProcessingProgress(100);
-//   } catch (error) {
-//     console.error("Error selecting folder:", error);
-//   }
-// };
 
 useEffect(() => {
   let interval = null;
@@ -198,6 +206,7 @@ const handleUpload = async () => {
     if (!folderContents || folderContents.length === 0) {
       throw new Error('No folder contents to upload');
     }
+    console.log(folderContents,"folder contentns in handleupload NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
     setUploadCount(0);
     let parentFolderId='';
     let filesUploaded = 0;
@@ -207,7 +216,7 @@ const handleUpload = async () => {
       
       const currentItemKey = Object.keys(queue)[0];
       const currentItem = queue[currentItemKey];
-      
+      console.warn(currentItem," current item in while NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
   
       filesUploaded++;
       if (selectedFolder.name===currentItemKey){
@@ -220,7 +229,8 @@ const handleUpload = async () => {
       };
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/create-folder`, folderData);
       let updatedParentFolderId = response.data._id;
-      setParentFolderId(updatedParentFolderId)
+      console.warn(updatedParentFolderId)
+      setParentFolderId(updatedParentFolderId,"uuuuuuuuuuuuuuuuuuuuuuuuu")
       parentFolderId=updatedParentFolderId
    
         for (const childKey of Object.keys(queue)) {
@@ -238,11 +248,12 @@ const handleUpload = async () => {
         projectId: selectedFolder ? (selectedFolder.name === currentItemKey ? projectId : "") : "",
         contractor_company: contractor_company
       };
-   
+      console.warn(currentItem.kind,currentItem,"99999999999999999999997777777777777777")
       // Send folderData to the backend
       if(currentItem.kind === 'directory') {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/folder/create-folder`, folderData);
       const updatedParentFolderId = response.data._id;
+      console.warn(updatedParentFolderId,"JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
       // Update parentFolderId of child folders in the queue
 
       for (const childKey of Object.keys(queue)) {
